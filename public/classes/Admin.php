@@ -35,7 +35,7 @@ class Admin{
 
 	public function getDefaultBlobsTypeList(){
 		$blobModel = new Blob($this->db);
-		$defaultBlobList = ['block','csv','dummy','form','gallery','html','image','link','map','page','paragraph'];
+		$defaultBlobList = ['block','csv','dummy','form','gallery','html','image','link','map','metalarch','page','paragraph'];
 		foreach($defaultBlobList as $blobType){
 			$returnList[$blobType]['defaultParams'] = $blobModel->getDefaultParams($blobType); 
 			$returnList[$blobType]['key'] = $blobType; 

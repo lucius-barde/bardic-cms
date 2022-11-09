@@ -1,0 +1,31 @@
+{
+	"name":	"Metal Archive",
+	"scope": "any",
+	"icon": "fa fa-music",
+	"baseFormat":{
+		"metalarch_id":{
+			"type":"number",
+			"required":true
+		},
+		"name":{
+			"type":"text",
+			"maxlength":"64",
+			"required":true
+		},
+		"origin":{
+			"type":"text",
+			"maxlength":"64",
+			"required":true
+		},
+		"genre":{
+			"type":"text",
+			"maxlength":"64",
+			"required":true
+		},
+		"image":{
+			"type":"text",
+			"maxlength":"255",
+			"required":true
+		}
+	}
+}
