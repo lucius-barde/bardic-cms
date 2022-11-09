@@ -1,0 +1,34 @@
+{
+	"name":	"Link",
+	"scope": "page",
+	"icon": "fa fa-file",
+	"baseFormat":{
+		"order":{
+			"type":"number",
+			"name":"Order",
+			"default":0,
+			"min":0,
+			"required":true
+		},
+		"navName":{
+			"type":"text",
+			"name":"Custom title in menu",
+			"maxlength":64
+		}
+	},
+
+	"i18n":{
+		"en":{
+			
+			"name": "External link",
+			"namePlural": "External links",
+			"order": "Order"
+		},
+		"fr":{
+			"name": "Lien externe",
+			"namePlural": "Liens externes",
+			"order": "Ordre"
+
+		}
+	}
+}

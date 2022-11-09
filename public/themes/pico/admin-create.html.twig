@@ -1,0 +1,348 @@
+<header class="container">
+	{% include "admin-nav.html.twig" %}
+</header>
+<main class="container">
+	<div id="adminEdit">
+
+		{% if get.parent %}
+			{% set setParent = blob %}
+			{% for blob in blobParentList %}
+			{% if (get.parent and blob.id == get.parent) %}
+				{% set setParent = blob %}
+			{% endif %}
+			{% endfor %}
+		{% endif %}
+		<form id="adminCreate" method="post" action="{{ ABSPATH }}/blob/add/">
+		  
+			<div class="grid">
+				<div class="admin-edit-col-left"> 
+					
+					<div class="grid">
+						<div>
+							<label class="small" for="type">{{ i18n.fieldType }}</label>
+							{% if get.type %}
+								<input type="text" class="small" value="{{ get.type }}" disabled />
+								<input type="hidden" id="type" name="type" value="{{ get.type }}" />
+							{% else %}
+								<select required class="small" id="type" name="type" required>
+								<option value="">{{ i18n.selectAType }}</option>
+								{% for blobType in blobTypes %}
+									<option value="{{ blobType.key }}">{{ blobType.defaultParams.name }}</option>	
+								{% endfor %}
+								</select>
+							{% endif %}
+						</div>
+
+						<div>
+							<label class="small" for="url">{{ i18n.fieldUrl }}</label>
+							<input {% if get.type == "page" %}required{% endif %} type="text" class="small" id="url" name="url">
+						</div>
+					</div>
+
+					<div>
+						<label class="small" for="name">{{ i18n.fieldName }}</label>
+						<input type="text" id="name" name="name">
+					</div>
+	
+					<div>
+						<label class="small" for="content">{{ i18n.fieldContent }}</label>
+						<textarea class="form-control form-control-lg" id="content" name="content" rows="5"></textarea>
+					</div>
+
+					<!-- Markdown Help Modal -->
+					<details>
+						<summary><small>{{ i18n.helpMarkdownSyntaxTitle }}</small></summary>
+						
+						<p><small>{{ i18n.helpMarkdownSyntax }}</small></p>
+						<hr />
+						<table style="width:100%;">
+							<col width="50%"></col>
+							<col width="40%"></col>
+
+							<tr>
+								<td>**Bold** text</td>
+								<td><strong>Bold</strong> text</td>
+							</tr>
+							<tr>
+								<td>*Italic* text</td>
+								<td><em>Italic</em> text</td>
+							</tr>
+							<!--<tr>
+								<td>~~Deleted~~ text</td>
+								<td><del>Deleted</del> text</td>
+							</tr>-->
+							<tr>
+								<td>x{sup}2{/sup}</td>
+								<td>x<sup>2</sup></td>
+							</tr>
+							<tr>
+								<td>x{sub}2{/sub}</td>
+								<td>x<sub>2</sub></td>
+							</tr>
+						</table>
+						<hr />
+						<table style="width:100%;">
+							<col width="50%"></col>
+							<col width="40%"></col>
+							<tr>
+								<td>[{{ i18n.link }}](https://www...)</td>
+								<td><a href="https://www.oppidumweb.net">{{ i18n.link }}</a></td>
+							</tr>
+							<tr>
+								<td>_[{{ i18n.linkNewTab }}](https://www...)</td>
+								<td><a href="https://www.oppidumweb.net" target="_blank">{{ i18n.linkNewTab }}</a></td>
+							</tr>
+							<tr>
+								<td>[{{ i18n.linkInternal }}](3)</td>
+								<td>{{ i18n.linkInternal }}</td>
+							</tr>
+							<tr>
+								<td>![{{ i18n.image }}](https://.../img.jpg)</td>
+								<td><img src="" alt="{{ i18n.image }}" /></td>
+							</tr>
+
+						</table>
+						<hr />
+						<table style="width:100%;">
+							<col width="50%"></col>
+							<col width="40%"></col>
+							<tr>
+								<td>### Subtitle</td>
+								<td><h3>Subtitle</h3></td>
+							</tr>
+							<tr>
+								<td>- List item</td>
+								<td><ul><li>List item</li></ul></td>
+							</tr>
+							<tr>
+								<td>1. Ordered list</td>
+								<td><ol><li>Ordered list</li></ol></td>
+							</tr>
+							<tr>
+								<td>`Code`</td>
+								<td><code>Code</code></td>
+							</tr>
+						</table>
+					</details>
+
+				</div>
+
+				<div class="admin-edit-col-right">
+					
+					<div class="grid">
+						<div>
+							{% if setParent %}
+									<label class="small" for="parent">{{ i18n.fieldParent }}</label>
+									<select disabled class="small" id="parent" name="parent">
+										<option value="0">{{ i18n.noParent }}</option>
+									{% for blob in blobParentList %}
+										<option value="{{ blob.id }}" {% if ((get.parent and blob.id == get.parent) or (not(get.parent) and blob.id == 1)) %}selected{% endif %}>{{ i18n._modules[blob.type].name }} "{{ blob.name ?? blob.url }}"</option>
+									{% endfor %}
+									</select>
+									<input type="hidden" id="parent" name="parent" value="{{ get.parent }}" />
+								{% else %}
+									<label class="small" for="parent">{{ i18n.fieldParent }}</label>
+									<select class="small" id="parent" name="parent">
+										<option value="0">{{ i18n.noParent }}</option>
+									{% for blob in blobParentList %}
+										<option value="{{ blob.id }}" {% if ((get.parent and blob.id == get.parent) or (not(get.parent) and blob.id == 1)) %}selected{% endif %}>{{ i18n._modules[blob.type].name }} "{{ blob.name ?? blob.url }}"</option>
+									{% endfor %}
+									</select>
+							{% endif %}
+						</div>
+
+						<div>
+							<label class="small" for="status">{{ i18n.fieldStatus }}</label>
+							<select class="small" id="status" name="status">
+								<option value="1">{{ i18n.statusOne }} (1)</option>
+								<option value="0">{{ i18n.statusZero }} (0)</option>
+								<option value="-1">{{ i18n.statusMinusOne }} (-1)</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="grid">
+						<div>
+							<label class="small" for="author">{{ i18n.fieldAuthor }}</label>
+							<select class="small" id="author" name="author">
+							{% for user in users %}
+								<option value="{{ user.id }}">{{ user.name }} ({{ user.url }})</option>
+							{% endfor %}
+							</select>
+						</div>
+					</div>
+
+
+					<div class="grid">
+						<div>
+							<label class="small" for="lang">{{ i18n.fieldLang }}</label>
+							{% if setParent %} 
+								  <input type="hidden" id="lang" name="lang" value="{{ setParent.lang }}" />
+								  <p class="no-margin">
+								  {% for lang in site.params.languages|keys %}
+									  {% if setParent.lang == lang %}
+									  <strong>{{ site.params.languages[lang] }}</strong>
+									  {% endif %}
+								  {% endfor %}
+								  </p>
+							{% else %}
+								  <select class="small" id="lang" name="lang">
+								  {% for lang in site.params.languages|keys %}
+									  <option value="{{ lang }}"{% if site.params.default_language == lang %} selected{% endif %}>{{ site.params.languages[lang] }} ({{ lang }})</option>
+								  {% endfor %}
+								  </select>
+							{% endif %}
+						</div>
+						<div>
+							<label class="small" for="translation_of">{{ i18n.fieldTranslationOf }}</label>
+							<select class="small" id="translation_of" name="translation_of">
+								<option value="">{{ i18n.none }}</option>
+							{% for tblob in translationBlobs %}
+								<option value="{{ tblob.id }}"{% if tblob.id == blob.translation_of %} selected{% endif %}>{{ i18n._modules[tblob.type].name }} "{{ tblob.name ?? tblob.url }}"</option>
+							{% endfor %}
+							</select>
+						  </div>
+					</div>
+
+					<div>
+						<label for="params" class="small">{{ i18n.fieldParams }}</label>
+						<div id="paramsWrapper" class="params-wrapper">
+							{% if get.params.baseFormat %}
+							
+									{% set unsetParams = [] %}
+									{% for bkey,bparam in get.params.baseFormat %}
+									{% if bkey not in blob.params|keys %}
+										{% set unsetParams = unsetParams|merge({ (bkey) : (bparam.default) }) %}
+									{% endif %}
+									{% endfor %}
+									{% set blobParamsTmp = blob.params ? blob.params : [] %}
+									{% set blobAndUnsetParams = blobParamsTmp|merge(unsetParams) %}
+								
+								{% for key,param in blobAndUnsetParams %}
+								
+									{% if param is iterable %}
+										<div class="grid">
+
+											<div>
+												<input type="text" class="small" data-keylevel="1" name="paramsKeys[{{ key }}]" value="{{ key }}" />
+											</div>
+
+											<div>
+												{% for subkey, subparam in param %}
+												<div class="no-margin">
+													<div class="col-md-4 col-sm-4 col-xs-4"><input type="text" class="small" data-keylevel="2" name="paramsKeys[{{ key }}][{{ subkey }}]" value="{{ subkey }}" /></div>
+													<div class="col-md-8 col-sm-8 col-xs-8"><input type="text" class="small" data-paramlevel="2" name="params[{{ key }}][{{ subkey }}]" value="{{ subparam }}" /></div>
+												</div>
+												{% endfor %}
+											</div>
+
+										</div>
+									{% else %}
+										<div class="grid">
+											
+												<div>
+													<label class="small" for="params[{{ key }}]">{{ i18n._modules[get.type][key] ?  i18n._modules[get.type][key] : key }}:</label>
+													<input type="hidden" class="small" data-keylevel="1" name="paramsKeys[{{ key }}]" value="{{ key }}" />
+												</div>
+
+												<div>
+													{% if get.params.baseFormat[key].type == "select" %}
+														<select class="small" data-paramlevel="1" name="params[{{ key }}]">
+															{% for option,optkey in get.params.baseFormat[key].options %}
+																<option value="{{ optkey }}" {% if optkey == param %}selected{% endif %}>{{ option }}</option>
+															{% endfor %} 
+														</select>
+													{% elseif get.params.baseFormat[key].type == "checkbox" %}
+														<input type="checkbox" class="small" data-paramlevel="1" {% if param == true %}checked{% endif %} name="params[{{ key }}]" />
+													{% else %}
+														
+														<input type="text" class="small" data-paramlevel="1" name="params[{{ key }}]" value="{{ param }}" />
+													{% endif %}
+													
+												</div>
+										</div>
+									{% endif %}
+								{% endfor %}
+						    {% else %}
+								<!-- default params if type is unset -->
+								<div>
+									<textarea class="small" name="rawParams" id="rawParams" placeholder='{"customParams":"here"}'></textarea>
+								</div>
+
+
+							{% endif %}
+						   
+					   </div><!-- /.params-wrapper -->
+					</div>
+
+				</div>
+
+			</div> <!-- /.grid -->
+			
+			
+			{% if get.callback == "frontend" %}	
+
+				<!-- TODO: dynamically change the callback if a parent exists -->
+				<input type="hidden" name="callback" id="callback" value="{{ setParent.lang }}/{{ site.params.homelink }}" />
+			
+			{% elseif get.callback == "adminSitemap" %}
+				<input type="hidden" name="callback" id="callback" value="admin/sitemap" />
+			{% else %}
+				<input type="hidden" name="callback" id="callback" value="admin/dashboard" />
+			{% endif %}
+			
+			<div class="grid">
+			
+				<div></div>
+				<div>
+					<button class="btn btn-primary" type="submit">{{ i18n.createNewElement }}</button>
+				</div>
+				<div></div>
+	
+			</div>
+
+		</form>
+	</div>
+</main>
+
+<script>
+
+$(document).ready(function(){
+	
+	$("#adminCreate").submit(function(e){
+
+		e.preventDefault();
+		var paramsKeys = $("input[name^='paramsKeys[']").map(function(){return $(this).val();}).get();
+		var paramsValues = $("input[name^='params[']").map(function(){return $(this).val();}).get();
+		var params = {};
+		for (var i = 0; i < paramsKeys.length; i++){
+			 params[paramsKeys[i]] = paramsValues[i];
+		}
+		
+		$.ajax({
+			method:"POST",
+			url:"{{ ABSPATH }}/blob/add/",
+			data:{
+				"type": $("#type").val(),
+				"url": $("#url").val(),
+				"name": $("#name").val(),
+				"content":$("#content").val(),
+				"parent":$("#parent").val(),
+				"status":$("#status").val(),
+				"author":$("#author").val(),
+				"lang":$("#lang").val(),
+				"translation_of":$("#translation_of").val(),
+				"params": params
+				
+			},
+			dataType:"html",
+		}).done(function(data){
+			$("#adminCreateAlerts").html('<div class="alert alert-success">{{ i18n.newElementCreated }}</div>');
+			window.location.href = ABSPATH+"/"+$("#callback").val()+"/";
+		});
+	});
+	
+});
+
+
+</script>

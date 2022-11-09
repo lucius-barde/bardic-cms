@@ -1,0 +1,34 @@
+{
+	"name":	"Dummy Module",
+	"scope": "any",
+	"icon": "fa fa-drafting-compass",
+	"baseFormat":{
+		"dummytext":{
+			"type":"text",
+			"maxlength":"64",
+			"placeholder":"textfield placeholder",
+			"default":"default value",
+			"required":true
+		},
+		"dummynumber":{
+			"type":"number",
+			"min":0,
+			"max":20,
+			"default":10,
+			"required":true
+		},
+		"dummyselect":{
+			"type":"select",
+			"options":{
+				"foo":0,
+				"bar":1,
+				"baz":2
+			},
+			"default":0
+		},
+		"dummycheckbox":{
+			"type":"checkbox",
+			"default":true
+		}
+	}
+}

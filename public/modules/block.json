@@ -1,0 +1,36 @@
+{
+	"name":	"Block",
+	"scope": "page",
+	"canBeParent":true,
+	"icon": "fa fa-cubes",
+	"baseFormat":{
+		
+		"order":{
+			"type":"number",
+			"default":0,
+			"min":0,
+			"required":true
+		},
+		"externalData":{
+			"type":"text",
+			"maxlength":256
+		}
+	},
+	"i18n":{
+		"en":{
+			"externalData":"Load external data",
+			"hideTitle": "Hide title",
+			"name": "Block",
+			"namePlural": "Blocks",
+			"order": "Order"
+		},
+		"fr":{
+			"externalData":"Charger des données externes",
+			"hideTitle": "Cacher le titre",
+			"name": "Bloc",
+			"namePlural": "Blocs",
+			"order": "Ordre"
+			
+		}
+	}
+}

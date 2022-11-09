@@ -1,0 +1,95 @@
+			<form id="userAdmin" role="form" method="post" action="{{ ABSPATH }}/user/signup/">
+
+						{% if not session.id %}
+						
+							{% if action == "userSignupValidate" %}
+
+								<div class="row">
+									<div class="col-md-12">
+									{% if createUser %}
+										<div class="alert alert-success">User <strong>{{ newUserData.login }}</strong> was created. Login with:<br /><strong>{{ newUserData.email }}</strong>.</div>
+											
+										<div class="text-center">
+											<a class="btn btn-primary" href="{{ ABSPATH }}/user/login">All right !</a>
+										</div>
+
+										{% else %}
+										<div class="alert alert-danger">Could not create user <strong>{{ newUserData.email }}</strong>. <br />Does it already exist ?</div>
+										
+										<div class="text-center">
+											<a class="btn btn-primary" href="{{ ABSPATH }}/user/signup">Errare Humanum Est...</a>
+										</div>
+									{% endif %}
+									</div>
+								</div>
+
+								{% elseif action == "userSignup" %}
+							
+							
+								{% if status %}
+								<div class="row">
+									<div class="col-md-12">
+										<div class="alert alert-{{ status }}">
+										{% if statusText == "user_signup_invalid" %}
+										Invalid characters in username or email.
+										{% else %}
+										{{ statusText }}
+										{% endif %}
+										</div>
+									</div>
+								</div>
+								{% endif %}
+								<h3>Create a new account</h3>
+								<div class="form-group">
+									<div class="col-md-12"><label for="userAdmin[login]">Enter new login</label></div>
+									<div class="col-md-12"><input type="text" class="form-control" name="userAdmin[login]" /></div>
+								</div>
+								<div class="form-group">
+									<div class="col-md-12"><label for="userAdmin[email]">Enter new email</label></div>
+									<div class="col-md-12"><input type="email" class="form-control" name="userAdmin[email]" /></div>
+								</div>
+								<div class="form-group">
+									<div class="col-md-12"><label for="userAdmin[password]">Enter new password</label></div>
+									<div class="col-md-12"><input type="password" class="form-control" name="userAdmin[password]" /></div>
+								</div>
+								
+								<div class="row" style="margin-top:16px;">
+									<div class="col-6">
+										<input type="hidden" id="notifySendForm" value="1" />
+										<a class="btn btn-secondary" href="{{ ABSPATH }}">Back</a>
+									</div>
+									<div class="col-6">
+										<input type="hidden" id="callback" name="callback" value="admin/dashboard" />
+										<input type="hidden" id="callbackIfError" name="callbackIfError" value="1" />
+										<input type="hidden" id="notifySendForm" value="1" />
+										<button style="float:right;" type="submit" class="btn btn-primary">Create account</button>
+									</div>
+								</div>
+							
+							{% else %}
+								<div class="alert alert-danger">Error: invalid action</div>
+							{% endif %}
+							
+						{% else %}
+							
+						
+							<div class="row">
+								<div class="col-12">You are connected as <strong>{{ session.login }}</strong>.</div>
+							</div>
+							
+							<div class="row mt-4">
+								<div class="col-12">
+									<input type="hidden" id="notifySendForm" value="1" />
+									<a class="btn btn-primary" href="{{ ABSPATH }}/admin/">Edit site</a> 
+									<a class="btn btn-danger" href="{{ ABSPATH }}/user/logout/">Logout</a>
+								</div>
+							</div>
+								
+								
+						{% endif %}
+						
+					</div>
+					<div class="_1/5"></div>
+				</div>
+			</form>
+					

@@ -1,0 +1,49 @@
+{
+	"name":	"Image",
+	"scope": "pageElement",
+	"icon": "fa fa-image",
+	"baseFormat":{
+		"order":{
+			"type":"number",
+			"default":0,
+			"min":0,
+			"required":true
+		},
+		"src":{
+			"type":"text",
+			"placeholder":"galleries/mygallery",
+			"required":true
+		},
+		"class":{
+			"type":"text"
+		},
+		"caption":{
+			"type":"number",
+			"default":0,
+			"min":0,
+			"max":1
+		}
+	},
+
+	"i18n":{
+		"en":{
+			"caption":"Show caption",
+			"class":"CSS Classes",
+			"hideTitle": "Hide title",
+			"name": "image",
+			"namePlural": "images",
+			"order": "Order",
+			"src":"Link to the image (relative to /uploads/)"
+		},
+		"fr":{
+			"caption":"Afficher le titre de l'image",
+			"classes":"Classes CSS",
+			"hideTitle": "Cacher le titre",
+			"name": "image",
+			"namePlural": "images",
+			"order": "Ordre",
+			"src":"Lien vers l'image (relatif à /uploads/)"
+			
+		}
+	}
+}

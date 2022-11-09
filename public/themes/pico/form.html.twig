@@ -1,0 +1,96 @@
+{% if element.status == 1 or (element.status == 0 and session.id) %}
+<a name="form-{{ element.id }}"></a>
+<div class="form{{ element.params.class ? ' '~element.params.class : ''}}" id="id-{{ element.id }}" data-status="{{ element.status }}">
+
+			<h3>{{ element.name }}</h3>
+			
+			{% if status and statusText %}
+			<div class="alert alert-{{ status == 'error' ? 'danger' : status }}">{{ statusText }}</div>
+			{% endif %}
+				
+			{% if errors|length > 0 %}
+				{% for error in errors %}
+					<div class="alert alert-danger">{{ statusText }}</div>
+				{% endfor %}
+			{% endif %}
+			
+			
+			{% if status != "success" %}
+				
+			<form id="form{{ element.id }}" name="form{{ element.id }}" method="post" action="{{ ABSPATH }}/form/send/#form-{{ element.id }}">
+			
+				<input type="hidden" name="formData[check]" value="{{ random(1048576) * (element.id + element.params.nonce) }}" />
+					
+				{% if element.content %}
+					{{ validate.parseForm(element.content) | raw }}
+				{% else %}
+					<fieldset>
+						<label for="formData[name]">Your name</label>
+						<input type="text" name="formData[name]" class="form-control required {{ errors ? 'error' : '' }}" value="{{ formData.name }}" />
+					</fieldset>
+					
+					<fieldset>
+						<label for="formData[email]">Your e-mail</label>
+						<input type="email" name="formData[email]" class="form-control required {{ errors ? 'error' : '' }}" value="{{ formData.email }}" />
+					</fieldset>
+					
+					<fieldset>
+						<label for="formData[telephone]">Your phone number</label>
+						<input type="text" class="form-control" name="formData[telephone]" value="{{ formData.telephone }}" />
+					</fieldset>
+					
+					<fieldset>
+						<label for="formData[message]">Your message</label>
+						<textarea name="formData[message]" class="form-control required {{ errors ? 'error' : '' }}">{{ formData.message }}</textarea>
+					</fieldset>
+					
+				{% endif %}
+
+				<input type="hidden" name="formData[id]" value="{{ element.id }}" />
+				<br />
+				<fieldset>
+					<button class="btn btn-primary" type="submit">{{ i18n._modules.form.submit }}</button>
+				</fieldset>
+				
+				{% if not(RECAPTCHA_V3_SITE_KEY) %}
+				<div class="alert alert-danger">Error: ReCAPTCHA is misconfigured on this website, the contact form may not work.</div>
+				{% endif %}
+
+				<script src="https://www.google.com/recaptcha/api.js?render={{ RECAPTCHA_V3_SITE_KEY }}"></script>
+				
+				<script>
+					// TODO: Pico Theme - Was changed to vanilla js, must be tested !
+					document.getElementById('form{{ element.id }}').addEventListener("submit", function(event) {
+						console.log(42);
+						event.preventDefault();
+						var email = document.querySelector('input[name="formData[email]"]').value;
+
+						grecaptcha.ready(function() {
+							grecaptcha.execute('{{ RECAPTCHA_V3_SITE_KEY }}', {action: 'send_form'}).then(function(token) {
+								let form = document.getElementById('form{{ element.id }}');
+								let inputNameToken = document.createElement('input');
+								inputNameToken.setAttribute('type','hidden');
+								inputNameToken.setAttribute('name','token');
+								inputNameToken.setAttribute('value',token);
+								let inputNameAction = document.createElement('input');
+								inputNameAction.setAttribute('type','hidden');
+								inputNameAction.setAttribute('name','action');
+								inputNameAction.setAttribute('value','send_form');
+								console.log(form);
+								form.insertBefore(inputNameToken,form.firstChild);
+								form.insertBefore(inputNameAction,form.firstChild);
+								form.submit();
+							});
+						});
+					});
+						
+				 
+				</script>
+				
+			
+			</form>
+			
+			{% endif %}
+	
+</div>
+{% endif %}
