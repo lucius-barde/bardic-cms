@@ -7,7 +7,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 $app->get('/admin[/]', function (Request $q, Response $r, array $args) {
 	
-	if(!isset($_SESSION['id']) || $_SESSION['params']['level'] < 3){
+	if(!isset($_SESSION['id'])){
 		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
 	} else {
 		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/admin/sitemap/');
@@ -17,7 +17,7 @@ $app->get('/admin[/]', function (Request $q, Response $r, array $args) {
 
 $app->get('/admin/dashboard/[{page:[0-9]+}/]', function (Request $q, Response $r, array $args) {
 	
-	if(!isset($_SESSION['id']) || $_SESSION['params']['level'] < 3){
+	if(!isset($_SESSION['id'])){
 		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
 	}
 		
@@ -98,7 +98,7 @@ $app->get('/admin/dashboard/[{page:[0-9]+}/]', function (Request $q, Response $r
 $app->get('/admin/dashboard/type/{type}/[{page:[0-9]+}/]', function (Request $q, Response $r, array $args) {
 	
 	
-	if(!isset($_SESSION['id']) || $_SESSION['params']['level'] < 3){
+	if(!isset($_SESSION['id'])){
 		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
 	}
 	
@@ -157,7 +157,7 @@ $app->get('/admin/dashboard/type/{type}/[{page:[0-9]+}/]', function (Request $q,
 
 $app->get('/admin/create[/]', function (Request $q, Response $r, array $args) {
 	
-	if(!isset($_SESSION['id']) || $_SESSION['params']['level'] < 3){
+	if(!isset($_SESSION['id'])){
 		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
 	}
 	
@@ -166,9 +166,8 @@ $app->get('/admin/create[/]', function (Request $q, Response $r, array $args) {
 	$adminModel = new Admin($this->db);
 	$site = $blobModel->getSiteProperties();
 	$translationBlobs = $blobModel->getAllBlobs([ 'admin'=>true,'lang'=>[$site['params']['default_lang']] ]); //used in field translation_of
-	$users = $blobModel->getAllBlobs(['admin'=>true, 'type'=>'user']); //used in field author
 	$blobTypes = $adminModel->getDefaultBlobsTypeList();
-	$blobParentList = $blobModel->getAllBlobs( ['admin'=>true,'type'=>['site','page','block']] );
+	$blobParentList = $blobModel->getAllBlobs( ['admin'=>true,'type'=>['page','block']] );
 
 	
 	//Pre-fill the create form
@@ -196,7 +195,6 @@ $app->get('/admin/create[/]', function (Request $q, Response $r, array $args) {
 		'get'=>$get,
 		'i18n'=>$adminModel->getTranslations($site['params']['default_language']),
 		'translationBlobs'=>$translationBlobs,
-		'users'=>$users,
 		'site'=>$site,
 		'session'=>$_SESSION
 	];
@@ -210,7 +208,7 @@ $app->get('/admin/create[/]', function (Request $q, Response $r, array $args) {
 $app->get('/admin/{id}/edit/[status/{status}/]', function (Request $q, Response $r, array $args) {
 	
 	
-	if(!isset($_SESSION['id']) || $_SESSION['params']['level'] < 3){
+	if(!isset($_SESSION['id'])){
 		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
 	}
 	
@@ -225,8 +223,7 @@ $app->get('/admin/{id}/edit/[status/{status}/]', function (Request $q, Response 
 	$blobModel = new Blob($this->db);
 	//$blob = $blobModel->getBlob($id,['rawParams'=>true]);
 	$blob = $blobModel->getBlob($id,['rawParams'=>false]);
-	$blobParentList = $blobModel->getAllBlobs( ['admin'=>true,'type'=>['site','page','block']] );
-	$users = $blobModel->getAllBlobs(['admin'=>true, 'type'=>'user']);
+	$blobParentList = $blobModel->getAllBlobs( ['admin'=>true,'type'=>['page','block']] );
 	$site = $blobModel->getSiteProperties();
 	//$blobTypes = $adminModel->getDefaultBlobsTypeList();
 	$translationBlobs = $blobModel->getAllBlobs([ 'admin'=>true,'lang'=>[$site['params']['default_lang']] ]); //used in field translation_of
@@ -253,7 +250,6 @@ $app->get('/admin/{id}/edit/[status/{status}/]', function (Request $q, Response 
 		'site'=>$site,
 		'session'=>$_SESSION,
 		'status'=>$status,
-		'users'=>$users,
 		'validate'=>$validate
 	];
 	$r = $this->viewAdmin->render($r, "standard.html.twig", $params);
@@ -265,7 +261,7 @@ $app->get('/admin/{id}/edit/[status/{status}/]', function (Request $q, Response 
 $app->get('/admin/recycle/[{page:[0-9]+}/]', function (Request $q, Response $r, array $args) {
 	
 	
-	if(!isset($_SESSION['id']) || $_SESSION['params']['level'] < 3){
+	if(!isset($_SESSION['id'])){
 		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
 	}
 	
@@ -318,7 +314,7 @@ $app->get('/admin/recycle/[{page:[0-9]+}/]', function (Request $q, Response $r, 
 $app->get('/admin/sitemap[/]', function (Request $q, Response $r, array $args) {
 	
 		
-	if(!isset($_SESSION['id']) || $_SESSION['params']['level'] < 3){
+	if(!isset($_SESSION['id'])){
 		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
 	}
 	
@@ -354,7 +350,7 @@ $app->get('/admin/sitemap[/]', function (Request $q, Response $r, array $args) {
 
 $app->get('/admin/table/[{page:[0-9+]}/]', function (Request $q, Response $r, array $args) {
 	
-	if(!isset($_SESSION['id']) || $_SESSION['params']['level'] < 3){
+	if(!isset($_SESSION['id'])){
 		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
 	}
 	
@@ -399,14 +395,13 @@ $app->get('/admin/table/[{page:[0-9+]}/]', function (Request $q, Response $r, ar
 
 $app->get('/admin/uploads[/[{subdir:.*}/]]', function (Request $q, Response $r, array $args) {
 	
-	if(!isset($_SESSION['id']) || $_SESSION['params']['level'] < 3){
+	if(!isset($_SESSION['id'])){
 		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
 	}
 	
 	$blobModel = new Blob($this->db);
 	$mediaModel = new Media($this->db);
 	$blobs = $blobModel->getAllBlobs(['admin'=>true]);
-	$users = $blobModel->getAllBlobs(['admin'=>true, 'type'=>'user']);
 	
 	$subdir = '/'.$args['subdir'];
 	
@@ -424,7 +419,6 @@ $app->get('/admin/uploads[/[{subdir:.*}/]]', function (Request $q, Response $r, 
 		'dir'=>$subdir,
 		'i18n'=>$adminModel->getTranslations($siteObject['params']['default_language']),
 		'media'=>$media,
-		'users'=>$users,
 		'site'=>$siteObject,
 		'session'=>$_SESSION
 	];
@@ -433,5 +427,143 @@ $app->get('/admin/uploads[/[{subdir:.*}/]]', function (Request $q, Response $r, 
 	//return $r->withJson($params);
 	
 })->setName('adminUploads');
+
+
+
+
+/** GET LOGIN FORM **/
+
+$app->get('/admin/login[/]', function (Request $q, Response $r, $args) {
+	
+	//Check if users are allow to signup
+	$blobModel = new Blob($this->db);
+	$site = $blobModel->getSiteProperties();
+    //Build view
+    $params = [
+		'ABSDIR'=>ABSDIR,
+		'ABSPATH'=>ABSPATH,
+		'action'=>'userLogin',
+		'site'=>$site,
+		'session' => $_SESSION
+	];
+	
+    $r = $this->viewAdmin->render($r, "standard.html.twig", $params);
+	return $r;
+})->setName('adminLogin');
+
+
+
+//Admin API request - Get All Routes (to verify constraint problems)
+$app->get('/admin/getAllRoutes[/]', function (Request $q, Response $r, array $args) {
+	
+	if(!isset($_SESSION['id'])){return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');}
+	
+	$adminModel = new Admin($this->db);
+	$allRoutes = $adminModel->getAllRoutes();
+    return $r->withJson($allRoutes);
+    
+})->setName('adminGetAllRoutes');
+
+
+
+/** LOG IN **/
+$app->post('/admin/login[/]', function (Request $q, Response $r) {
+	
+	
+	//Check if users are allow to signup
+	$blobModel = new Blob($this->db);
+	$siteParamsQuery = $blobModel->getSiteProperties();
+	$siteParams = json_decode($siteParamsQuery['params'],true);
+	$allowUserSignup = $siteParams['allowUserSignup'];
+	
+	
+    $post = $q->getParsedBody();
+    $adminModel = new Admin($this->db);
+    $validate = new Validator($this->db);
+    $callback = $validate->asParam($post['callback']);
+    $user = $adminModel->login($validate->asParam($post['userAdmin']['login']),$validate->asParam($post['userAdmin']['password']));
+    if(!!$user && !$user['error']):
+    
+    	//Log something somewhere here.
+    	$_SESSION['id'] = session_id(); //TO REMOVE ?
+    	$_SESSION['login'] = $user['login'];
+    	$_SESSION['status'] = 1; //TO REMOVE IN ALL APP
+		$_SESSION['params']['level'] = 3; //TO REMOVE IN ALL APP
+    	  
+    	 
+    	if($callback){
+			return $r->withStatus(302)->withHeader('Location', ABSPATH.'/'.$callback.'/');
+		} else {
+			return $r->withStatus(200)->withJson(['status'=>'success','statusText'=>'user_login_success']);
+		}
+		
+		
+    elseif($user['error']):
+		
+		if($post['callbackIfError'] == true){
+			
+			///// Copy-paste from GET user/login
+			//Check if users are allow to signup
+			$blobModel = new Blob($this->db);
+			$siteParamsQuery = $blobModel->getSiteProperties();
+			$siteParams = json_decode($siteParamsQuery['params'],true);
+			$allowUserSignup = $siteParams['allowUserSignup'];
+			//Build view
+			$params = [
+				'ABSDIR'=>ABSDIR,
+				'ABSPATH'=>ABSPATH,
+				'action'=>'userLogin',
+				'allowUserSignup'=>$allowUserSignup,
+				'session' => $_SESSION,
+				'status'=>'warning',
+				'statusText'=>'user_login_incorrect_username'
+			];
+			///// End. TODO: route with $app->map() to avoid this copy/paste.
+			
+		}else{
+			
+			return $r->withStatus(200)->withJson(['status'=>'warning','statusText'=>'user_login_incorrect_username']);
+			
+		}
+			
+		$r = $this->viewAdmin->render($r, "standard.html.twig", $params);
+		return $r;
+		
+    else:
+    
+		return $r->withStatus(500)->withJson(['status'=>'error','statusText'=>'user_login_unknown_error']);
+		
+    endif;
+    
+    $params = [
+		'ABSDIR'=>ABSDIR,
+		'ABSPATH'=>ABSPATH,
+		'action'=>'userLogin',
+		'session'=>$_SESSION
+	];
+    $r = $this->viewAdmin->render($r, "standard.html.twig", $params);
+    
+	return $r;
+})->setName('adminPostLogin');
+
+
+
+/** LOG OUT **/
+
+$app->map(['GET', 'POST'], '/admin/logout[/]', function (Request $q, Response $r) {
+	session_destroy();
+	unset($_SESSION);
+	if($q->getMethod() == "POST"){
+		$post = $q->getParsedBody();
+		$validate = new Validator();
+		$callback = $validate->asURL($post['callback']);
+		if(isset($callback)){
+		return $r->withStatus(302)->withHeader('Location', $callback);
+		}
+		return $r->withStatus(200)->withJson(['status'=>'success','statusText'=>'user_logout_success']);
+	}else{
+		return $r->withStatus(302)->withHeader('Location', ABSPATH);
+	}
+})->setName('adminLogout');
 
 

@@ -2,26 +2,6 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-//Get Blob - unsafe base, display passwords in fields
-$app->get('/{type}/{id:[0-9]+}[/]', function (Request $q, Response $r, array $args) {
-	
-	//TODO get module, if module is private i.e. site, user: 403, if module is public: continue
-
-	if(!isset($_SESSION['id'])){return $r->withStatus(403);}
-	
-	$blobModel = new Blob($this->db);
-	$id = (int)$args['id'];
-	$blob = $blobModel->getBlob($id);
-	
-	if($blob['status'] == -1){return $r->withStatus(404);}
-	if($_SESSION['id'] != $blob['author'] && $blob['status'] == 0){return $r->withStatus(404);} //TODO: function canDisplay() , like canEdit & canDelete.
-	
-	if($blob['type'] == $args['type']){
-		return $r->withJson($blob);
-	} else {
-		return $r->withStatus(404);
-	}
-})->setName('getBlob');
 
 
 
@@ -33,8 +13,6 @@ $app->post('/blob/add[/]', function (Request $q, Response $r, array $args) {
 	$blobModel = new Blob($this->db);
 	$validate = new Validator($this->db);
 	$post = $q->getParsedBody();
-	
-	if($post['type'] == 'site'){ return $r->withStatus(403); }
 
 	$callback = $validate->asParam($post['callback']);
 	
@@ -147,3 +125,75 @@ $app->post('/blob/{id}/update[/]', function (Request $q, Response $r, array $arg
 	return $r->withStatus($update['statusCode'])->withJson($update);
 	
 })->setName('updateBlob');
+
+//Get Blob - unsafe base, display passwords in fields
+$app->get('/{type:[a-z]+}/{id:[0-9]+}[/]', function (Request $q, Response $r, array $args) {
+	
+	$blobModel = new Blob($this->db);
+	$module = $blobModel->getDefaultParams($args['type']);
+	if(!$module){
+		return $r->withStatus(404)->withJson(['status'=>'error','statusText'=>'404 - Not Found']);
+	}
+
+	$id = (int)$args['id'];
+	$blob = $blobModel->getBlob($id);
+	
+	if($blob['status'] == 0 && !isset($_SESSION['id'])){
+		return $r->withStatus(401)->withJson(['status'=>'error','statusText'=>'401 - This element is private']);
+	}
+	
+	if($blob['status'] == -1){
+		return $r->withStatus(410)->withJson(['status'=>'error','statusText'=>'410 - This element was deleted']);
+	}
+	
+	if($blob['type'] == $args['type']){
+		return $r->withStatus(200)->withJson($blob);
+	}
+	
+	return $r->withStatus(404)->withJson(['status'=>'error','statusText'=>'404 - Not Found']);
+	
+})->setName('apiGetBlob');
+
+
+// Update single blob field
+/*
+$app->post('/{type}/{id:[0-9]+}/updateField[/]', function(Request $q, Response $r){
+	
+	if(!isset($_SESSION['id'])){return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');}
+	
+	
+	$validate = new Validator($this->db);
+	$post = $q->getParsedBody();
+	$id = (int)$post['id'];
+	$field = $validate->asParam($post['field']);
+	$value = $post['value'];
+	
+	$adminModel = new Admin($this->db);	
+	if(!$adminModel->canEdit($id)){return $r->withStatus(403);}
+	
+	switch($field){
+		case 'type': case 'url': $output = $validate->asURL($value); break;
+		case 'name': case 'content': $output = $validate->asString($value); $output = html_entity_decode($output, ENT_QUOTES); break;
+		case 'author': case 'parent': case 'translation_of': $output = $validate->asUnsignedInt($value); break; //todo: asExistingBlob
+		case 'status': $output = $validate->asStatus($value); break;
+		case 'edited': $output = $validate->asDateTime($value); break; //TODO: as date
+		case 'params': $output = $validate->asJson($value); break;
+		case 'lang': $output = $validate->asParam($value); break;
+	}
+	
+	if($output === false){
+		return $r->withStatus(403)->withJson(['status'=>'error','statusText'=>'invalid_parameter','value'=>$value, 'output'=>$output]);
+	} else {
+		$blobModel = new Blob($this->db);
+		try{
+			$sql = $this->db->prepare('UPDATE '.TBL.' SET '.$field.' = :value WHERE id = :id;');
+			$sql->execute([':value'=>$output,':id'=>$id]);
+			return $r->withStatus(200)->withJson(['status'=>'success','value'=>$value,'output'=>$output,'id'=>$id,'field'=>$field]);
+		} catch(PDOException $e){
+			return $r->withStatus(500)->withJson(['status'=>'error','statusText'=>$e->getMessage()]);
+		}
+		
+	} 
+	
+	
+})->setName('apiUpdateBlob');*/

@@ -9,32 +9,15 @@ class Admin{
 	
 	
 	public function canEdit($id){
-		$blobModel = new Blob($this->db);
-		if(!$_SESSION['params']['level'] || !$_SESSION['user_id']){return false;}
-		if($_SESSION['status'] < 1){return false;}
-		if($blobModel->isTheAuthor($id)){return true;}
-		if(!$blobModel->isTheAuthor($id) && $_SESSION['params']['level'] >=2){return true;}
-		
-		if($blobModel->getBlobType($id) == "user"){
-			if($id == $_SESSION['user_id']){
-				return true;
-			}
-		}
+		if($_SESSION['id']){return true;}
 		return false;
 	}
 	
 	
 	
 	public function canDelete($id){
-		$blobModel = new Blob($this->db);
-		$type = $blobModel->getBlobType($id);
-		if($type == "site"){return false;}
-		if($type == "user" && $_SESSION['params']['level'] < 3){return false;}
-		
-		$canDelete = $this->canEdit($id);
-		
-		return $canDelete;
-		
+		if($_SESSION['id']){return true;}
+		return false;
 	}
 	
 	public function getBlobTypeList(){
@@ -52,7 +35,7 @@ class Admin{
 
 	public function getDefaultBlobsTypeList(){
 		$blobModel = new Blob($this->db);
-		$defaultBlobList = ['block','csv','dummy','form','gallery','html','image','link','map','page','paragraph','site','user'];
+		$defaultBlobList = ['block','csv','dummy','form','gallery','html','image','link','map','page','paragraph'];
 		foreach($defaultBlobList as $blobType){
 			$returnList[$blobType]['defaultParams'] = $blobModel->getDefaultParams($blobType); 
 			$returnList[$blobType]['key'] = $blobType; 
@@ -155,9 +138,9 @@ class Admin{
 	
 	
 	private function getSitemapTree($siteRoot,$args = []){
-		$parentID = $siteRoot['id'];
-		$homelink = $siteRoot['params']['homelink'];
 		
+		$parentID = $siteRoot['id'] ? $siteRoot['id'] : 0;
+
 		// query
 		if($args['langFilter']){$langCondition = ' AND lang = "'.$args['langFilter'].'"';}
 		if($args['withBlocks'] == true){
@@ -215,6 +198,66 @@ class Admin{
 
 		$i18n = array_merge($adminI18n,$moduleI18n);
 		return $i18n;
+	}
+
+
+	function login($login,$password){
+		global $config;
+		//Verify password
+		if($login == $config['user']['login'] && $password == $config['user']['password']){
+			return ['status'=>'ok','login'=>$login];
+		}
+		return ['error'=>'user.warning.incorrectPasswordForUsername'];
+  	}
+  	
+  	function createUserBySignup($new){
+		//$newLogin = $new['login'];
+		$newPassword = password_hash($new['password'],PASSWORD_BCRYPT);
+		$params = [
+			'password'=>$newPassword,
+			'level'=>0,
+			'status'=>0
+		];
+		$params = json_encode($params);
+
+		$userVerify = $this->db->prepare('SELECT * FROM '.TBL.' WHERE type = "user" AND url = :email LIMIT 1;');
+		$userVerify->execute([':email'=>$new['email']]);
+		$userAlreadyExists = $userVerify->fetch();
+		if(!!$userAlreadyExists){
+			return false;
+		}else{
+			
+			$sql = $this->db->prepare('INSERT INTO '.TBL.' (id,type,url,name,content,parent,status,author,edited,params) VALUES (NULL, "user", :url, :name, "", 0, 0, 0, NOW(),:params)');
+			$sql->execute([':name'=>$new['login'],':url'=>$new['email'], ':params'=>$params]);
+			
+			if(!!$sql):
+				return true;
+			else:
+				return false;
+			endif;
+		}
+
+		
+	}
+  	
+  	function userExists($login){
+  		$sql = $this->db->query('SELECT * FROM '.TBL.' WHERE type = "user" AND content LIKE "%'.$login.'%"');
+  		$row = $sql->fetch();
+  		if(sizeof($row) > 0){
+			return $row;
+		}
+		return false;
+	}
+		
+	public function getAllRoutes(){
+		global $app;
+		$routes = $app->getContainer()->router->getRoutes();
+		$output = [];
+		foreach ($routes as $route) {
+			$output[$route->getName()] = $route->getName().' : '.$route->getPattern(). ' '. implode(', ',$route->getMethods());
+		}
+		sort($output); //sort and preserve array keys
+		return $output;
 	}
 	
 	

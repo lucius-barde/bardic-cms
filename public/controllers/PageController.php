@@ -10,11 +10,11 @@ $urlsQuery = $container['db']->query($urlsQueryText);
 $rewriters = ($urlsQuery->fetchAll());
 $blobModel = new Blob($container->db);
 $siteParamsQuery = $blobModel->getSiteProperties();
-$siteParams = json_decode($siteParamsQuery['params'],true);
+$siteParams = $siteParamsQuery['params'];
 
 foreach($rewriters as $rewriter){
 	//If a subpage, generate complete url
-	if($rewriter['parent'] != '1'):
+	if($rewriter['parent'] != '0'):
 	
 		$parentPage = array_search($rewriter['parent'], array_column($rewriters, 'id'));
 		
@@ -122,10 +122,6 @@ $app->get('/', function(Request $q, Response $r, $args){
 	$blocks = $blockModel->getBlocks();
 
 	if(!!$blob && $blob['type'] == 'page'):
-		//Redirect to "/" if is home page
-		/*if($pageModel->isHome($blob['id'],$lang)):
-			return $r->withStatus(302)->withHeader('Location', ABSPATH);
-		endif;*/
 		
 		//Redirect to 404 if inactive
 		if(!isset($_SESSION['id']) && $blob['status'] < 1):

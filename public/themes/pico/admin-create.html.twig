@@ -136,7 +136,7 @@
 									<select disabled class="small" id="parent" name="parent">
 										<option value="0">{{ i18n.noParent }}</option>
 									{% for blob in blobParentList %}
-										<option value="{{ blob.id }}" {% if ((get.parent and blob.id == get.parent) or (not(get.parent) and blob.id == 1)) %}selected{% endif %}>{{ i18n._modules[blob.type].name }} "{{ blob.name ?? blob.url }}"</option>
+										<option value="{{ blob.id }}" {% if (get.parent and blob.id == get.parent) %}selected{% endif %}>{{ i18n._modules[blob.type].name }} "{{ blob.name ?? blob.url }}"</option>
 									{% endfor %}
 									</select>
 									<input type="hidden" id="parent" name="parent" value="{{ get.parent }}" />
@@ -145,7 +145,7 @@
 									<select class="small" id="parent" name="parent">
 										<option value="0">{{ i18n.noParent }}</option>
 									{% for blob in blobParentList %}
-										<option value="{{ blob.id }}" {% if ((get.parent and blob.id == get.parent) or (not(get.parent) and blob.id == 1)) %}selected{% endif %}>{{ i18n._modules[blob.type].name }} "{{ blob.name ?? blob.url }}"</option>
+										<option value="{{ blob.id }}" {% if (get.parent and blob.id == get.parent) %}selected{% endif %}>{{ i18n._modules[blob.type].name }} "{{ blob.name ?? blob.url }}"</option>
 									{% endfor %}
 									</select>
 							{% endif %}
@@ -157,17 +157,6 @@
 								<option value="1">{{ i18n.statusOne }} (1)</option>
 								<option value="0">{{ i18n.statusZero }} (0)</option>
 								<option value="-1">{{ i18n.statusMinusOne }} (-1)</option>
-							</select>
-						</div>
-					</div>
-
-					<div class="grid">
-						<div>
-							<label class="small" for="author">{{ i18n.fieldAuthor }}</label>
-							<select class="small" id="author" name="author">
-							{% for user in users %}
-								<option value="{{ user.id }}">{{ user.name }} ({{ user.url }})</option>
-							{% endfor %}
 							</select>
 						</div>
 					</div>

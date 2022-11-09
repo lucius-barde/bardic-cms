@@ -40,7 +40,7 @@ class Blob{
 				
 					
 			
-				$sql = $this->db->prepare('INSERT INTO '.TBL.' (id,type,name,url,content,parent,status,author,edited,lang,translation_of,params) VALUES (NULL,:type, :name, :url, :content, :parent, :status, :author, :edited, :lang, :translation_of, :params);');
+				$sql = $this->db->prepare('INSERT INTO '.TBL.' (id,type,name,url,content,parent,status,edited,lang,translation_of,params) VALUES (NULL,:type, :name, :url, :content, :parent, :status, :edited, :lang, :translation_of, :params);');
 				$newdata = [
 					':type' => $post['type'],
 					':name' => $post['name'],
@@ -48,7 +48,6 @@ class Blob{
 					':content' => $post['content'],
 					':parent' => $post['parent'],
 					':status' => $post['status'],
-					':author' => $post['author'],
 					':edited' => ($post['edited'] ? $post['edited'] : date('Y-m-d H:i:s')), //current time, except if we create a blob with a custom edition time (rare cases)
 					':params' => $post['params'],
 					':lang' => $post['lang'],
@@ -182,12 +181,6 @@ class Blob{
 		return $row;
 	}
 	
-	public function getAuthor($id){
-		$sql = $this->db->prepare('SELECT id, author FROM '.TBL.' WHERE id = :id LIMIT 1;');
-		$sql->execute([':id'=>$id]);
-		$authorID = $sql->fetch();
-		return $authorID['author'];
-	}
 	
   	
   	public function getBlob($id,$args = []){
@@ -225,24 +218,15 @@ class Blob{
 		$params = json_decode(file_get_contents(ABSDIR.'/modules/'.$type.'.json'),true);
 		return $params;
 	}
-	
+
 
 			
 	public function getSiteProperties(){
-  		$sql = $this->db->prepare('SELECT * FROM '.TBL.' WHERE type = "site" LIMIT 1;');
-  		$sql->execute();
-  		$row = $sql->fetch();
-  		$row['params'] = json_decode($row['params'],true);
-  		return $row;
+  		global $config;
+		$site = $config['site'];
+  		return $site;
   	}
   	
-	public function isTheAuthor($id){
-		if(!$_SESSION['user_id'] || !$_SESSION['id']){return false;} //session must be set
-		if($_SESSION['params']['level'] < 1){return false;} // by definition users with <1 privileges are not authors
-		$authorID = $this->getAuthor($id);
-		if($authorID == $_SESSION['user_id']){return true;}
-		return false;
-	}
 	
 	public function setBlobStatus($id,$s){
   		if(!empty($id)){
@@ -288,7 +272,7 @@ class Blob{
 			
 			
 			try{
-				$sql = $this->db->prepare('UPDATE '.TBL.' SET name = :name, url = :url, content = :content, parent = :parent, status = :status, author = :author, edited = :edited, lang = :lang, translation_of = :translation_of, params = :params WHERE id = :id AND type = :type LIMIT 1;');
+				$sql = $this->db->prepare('UPDATE '.TBL.' SET name = :name, url = :url, content = :content, parent = :parent, status = :status, edited = :edited, lang = :lang, translation_of = :translation_of, params = :params WHERE id = :id AND type = :type LIMIT 1;');
 				$sql->execute([
 					':id' => $id,
 					':type' => $post['type'],
@@ -297,7 +281,6 @@ class Blob{
 					':content' => $post['content'],
 					':parent' => $post['parent'],
 					':status' => $post['status'],
-					':author' => $post['author'],
 					':edited' => ($post['edited'] ? $post['edited'] : date('Y-m-d H:i:s')),
 					':lang'=>$post['lang'],
 					':translation_of'=>$post['translation_of'] ? $post['translation_of'] : NULL,

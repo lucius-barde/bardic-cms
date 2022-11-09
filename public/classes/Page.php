@@ -4,24 +4,19 @@ class Page{
 		$this->db = $db;
 	}
 	
-	public function writeLog($text){
-		//file_put_contents(ABSDIR.'/history.log', $text."\n", FILE_APPEND | LOCK_EX);
-	}
 	
     public function isHome($id,$lang){
-		$this->writeLog('isHome');
 		return $id == $this->getHomePage(false,$lang) ? true : false;
 	}
 	
   	public function getHomePage($withContent = true,$lang){
-		$this->writeLog('getHomePage');
 		$blobModel = new Blob($this->db);
 		$site = $blobModel->getSiteProperties();
 		$home = $site['params']['homelink'];
 		$sql1 = $this->db->prepare('SELECT id FROM '.TBL.' WHERE url = :home LIMIT 1;');
 		$sql1->execute([':home'=>$home]);
 		$homeID = $sql1->fetch();
-		$sql = $this->db->prepare('SELECT * FROM '.TBL.' WHERE type = "page" AND lang = :lang AND translation_of = :homeID;');
+		$sql = $this->db->prepare('SELECT * FROM '.TBL.' WHERE type = "page" AND lang = :lang AND (id = :homeID or translation_of = :homeID);');
 		$sql->execute([':lang'=>$lang, ':homeID'=>$homeID['id']]);
 		$row = $sql->fetch();
 		$row['params'] = json_decode($row['params'],true);
@@ -34,7 +29,6 @@ class Page{
 	
 	
   	public function getPageElements($id,$limit = NULL, $type = NULL){
-		$this->writeLog('getPageElements');
 		$typeStr = !$type ? '!= "page" AND type != "link"' : '= "'.$type.'"'; //TODO: replace by a list of modules with the scope PageElement
 		$limitStr = $limit > 0 ? 'LIMIT '.$limit : '';
   		$sql = $this->db->prepare('SELECT *, JSON_EXTRACT(params, "$.order") AS contentOrder FROM '.TBL.' WHERE parent = :id AND type '.$typeStr.' AND status > -1 ORDER BY contentOrder '.$limitStr.';');
@@ -68,7 +62,6 @@ class Page{
   	}
      
     public function getTranslations($tr){
-		$this->writeLog('getTranslations');
 		$sql = $this->db->prepare('SELECT * FROM '.TBL.' WHERE (translation_of = :tr) AND status > -1;');
 		$sql->execute([':tr'=>$tr]);
 		$rows = $sql->fetchAll();

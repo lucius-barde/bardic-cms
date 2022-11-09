@@ -38,9 +38,7 @@
 	{% elseif action == "adminUploads" %}	
 		{% include "admin-uploads.html.twig" %}		
 	{% elseif action == "userLogin" %}	
-		{% include "user-signin-form.html.twig" %}
-	{% elseif action == "userSignup" or action == "userSignupValidate" %}	
-		{% include "user-signup-form.html.twig" %}
+		{% include "signin-form.html.twig" %}
 	{% else %}
 
 	<header class="container"> <!-- .no-padding optional -->
@@ -111,15 +109,8 @@
 	  </nav>
 	</header>
 
-	  {% if isHome %}
-	  <!-- Home Banner and custom content -->
-	  <!--<header id="banner">
-			  <h2>{{ blocks.banner.children[0].name }}</h2>
-			  <p>{{ blocks.banner.children[0].content | raw | nl2br }}</p>
-	  </header>-->
-	  {% endif %}
 
-	  <!-- Standard Page Content -->
+	<!-- Standard Page Content -->
 
 	<main class="container">
 				
@@ -215,11 +206,11 @@
 				{% if session.id %}
 				
 					<a href="{{ ABSPATH }}/admin/">Admin sitemap</a> • 
-					<a href="{{ ABSPATH }}/user/logout/">Log out</a>
+					<a href="{{ ABSPATH }}/admin/logout/">Log out</a>
 					
 				{% else %}
 				
-					<a href="{{ ABSPATH }}/user/login/">Log in</a>
+					<a href="{{ ABSPATH }}/admin/login/">Log in</a>
 					
 				{% endif %}
 				</small>

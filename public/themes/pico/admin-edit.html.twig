@@ -132,16 +132,7 @@
 					</div>
 							
 					<div class="grid">
-						
-						<div>
-							<label for="author" class="small">{{ i18n.fieldAuthor }}</label>
-							<select class="small" id="author" name="author">
-								<option value="0">{{ i18n.noAuthor }}</option>
-							{% for user in users %}
-								<option value="{{ user.id }}"{% if user.id == blob.author %} selected{% endif %}>{{ user.name }} ({{ user.url }})</option>
-							{% endfor %}
-							</select>
-						</div>
+					
 						
 						<div>
 							<label for="edited" class="small">{{ i18n.fieldEdited }}</label>
