@@ -8,9 +8,9 @@ use \Psr\Http\Message\ResponseInterface as Response;
 $app->get('/admin[/]', function (Request $q, Response $r, array $args) {
 	
 	if(!isset($_SESSION['id'])){
-		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
+		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/admin/login/');
 	} else {
-		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/admin/sitemap/');
+		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/admin/dashboard/');
 	}
 	
 })->setName('admin');
@@ -18,7 +18,7 @@ $app->get('/admin[/]', function (Request $q, Response $r, array $args) {
 $app->get('/admin/dashboard/[{page:[0-9]+}/]', function (Request $q, Response $r, array $args) {
 	
 	if(!isset($_SESSION['id'])){
-		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
+		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/admin/login/');
 	}
 		
 	$blobModel = new Blob($this->db);
@@ -66,7 +66,7 @@ $app->get('/admin/dashboard/[{page:[0-9]+}/]', function (Request $q, Response $r
 	//get all kinds of blobs used on the site
 	$adminModel = new Admin($this->db);
 	$blobTypes = $adminModel->getBlobTypeList();
-	
+	$defaultBlobTypes = $adminModel->getDefaultBlobsTypeList();
 	
 	
 	$params = [
@@ -75,7 +75,8 @@ $app->get('/admin/dashboard/[{page:[0-9]+}/]', function (Request $q, Response $r
 		'action'=>'admin',
 		'blobs'=>$blobs,
 		'blobCount'=>$blobCount,
-		'blobTypes'=>$blobTypes,
+		'blobTypes'=>$blobTypes, //existing in database
+		'defaultBlobTypes'=>$defaultBlobTypes, //existing in modules folder
 		'get'=>$validate->validateArray($_GET,'asParam'),
 		'getOrderBy'=>($validate->asParam($_GET['orderby']) ? '?orderby='.$validate->asParam($_GET['orderby']) : false),
 		'getOrder'=>(in_array($_GET['order'],['ASC','DESC']) ? '&order='.$validate->asParam($_GET['order']) : false),
@@ -99,7 +100,7 @@ $app->get('/admin/dashboard/type/{type}/[{page:[0-9]+}/]', function (Request $q,
 	
 	
 	if(!isset($_SESSION['id'])){
-		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
+		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/admin/login/');
 	}
 	
 	$validate = new Validator($this->db);
@@ -155,29 +156,27 @@ $app->get('/admin/dashboard/type/{type}/[{page:[0-9]+}/]', function (Request $q,
 	
 })->setName('adminDashboardByType');
 
-$app->get('/admin/create[/]', function (Request $q, Response $r, array $args) {
+$app->get('/admin/create/{type:[a-z]+}[/]', function (Request $q, Response $r, array $args) {
 	
 	if(!isset($_SESSION['id'])){
-		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
+		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/admin/login/');
 	}
 	
 	
 	$blobModel = new Blob($this->db);
 	$adminModel = new Admin($this->db);
+	$validate = new Validator($this->db);
 	$site = $blobModel->getSiteProperties();
 	$translationBlobs = $blobModel->getAllBlobs([ 'admin'=>true,'lang'=>[$site['params']['default_lang']] ]); //used in field translation_of
 	$blobTypes = $adminModel->getDefaultBlobsTypeList();
 	$blobParentList = $blobModel->getAllBlobs( ['admin'=>true,'type'=>['page','block']] );
-
+	$type = $validate->asParam($args['type']);
 	
 	//Pre-fill the create form
 	if(sizeof($_GET) > 0){
-		$validate = new Validator($this->db);
 		
 		$get = [];
-		$get['callback'] = $validate->asParam($_GET['callback']);
 		$get['parent'] = $validate->asInt($_GET['parent']);
-		$get['type'] = $validate->asParam($_GET['type']);
 		$tmpLang = $blobModel->getBlob($get['parent']);
 		$get['parentLang'] = $tmpLang['lang'];
 		
@@ -196,6 +195,7 @@ $app->get('/admin/create[/]', function (Request $q, Response $r, array $args) {
 		'i18n'=>$adminModel->getTranslations($site['params']['default_language']),
 		'translationBlobs'=>$translationBlobs,
 		'site'=>$site,
+		'type'=>$type,
 		'session'=>$_SESSION
 	];
 	$r = $this->viewAdmin->render($r, "standard.html.twig", $params);
@@ -209,7 +209,7 @@ $app->get('/admin/{id}/edit/[status/{status}/]', function (Request $q, Response 
 	
 	
 	if(!isset($_SESSION['id'])){
-		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
+		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/admin/login/');
 	}
 	
 
@@ -231,7 +231,6 @@ $app->get('/admin/{id}/edit/[status/{status}/]', function (Request $q, Response 
 	//Pre-fill the edit form
 	$validate = new Validator($this->db);
 	$get = [];
-	$get['callback'] = $validate->asParam($_GET['callback']); //TODO.
 	$get['params'] = $blobModel->getDefaultParams($blob['type']);
 	$get['countSiblings'] = $blobModel->getAllBlobs(['parent'=>$get['parent'], 'onlyCount'=>true]); //used to put the default "order" value to the last element index + 1
 	if($get['callback'] == 'frontend'){
@@ -243,7 +242,6 @@ $app->get('/admin/{id}/edit/[status/{status}/]', function (Request $q, Response 
 		'action'=>'adminEdit',
 		'blob'=>$blob,
 		'blobParentList'=>$blobParentList,
-		'callback'=>$callback,
 		'get'=>$get,
 		'translationBlobs'=>$translationBlobs,
 		'i18n'=>$adminModel->getTranslations($site['params']['default_language']),
@@ -262,7 +260,7 @@ $app->get('/admin/recycle/[{page:[0-9]+}/]', function (Request $q, Response $r, 
 	
 	
 	if(!isset($_SESSION['id'])){
-		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
+		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/admin/login/');
 	}
 	
 	$adminModel = new Admin($this->db);
@@ -315,7 +313,7 @@ $app->get('/admin/sitemap[/]', function (Request $q, Response $r, array $args) {
 	
 		
 	if(!isset($_SESSION['id'])){
-		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
+		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/admin/login/');
 	}
 	
 	$adminModel = new Admin($this->db);
@@ -351,7 +349,7 @@ $app->get('/admin/sitemap[/]', function (Request $q, Response $r, array $args) {
 $app->get('/admin/table/[{page:[0-9+]}/]', function (Request $q, Response $r, array $args) {
 	
 	if(!isset($_SESSION['id'])){
-		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
+		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/admin/login/');
 	}
 	
 	$blobModel = new Blob($this->db);
@@ -396,7 +394,7 @@ $app->get('/admin/table/[{page:[0-9+]}/]', function (Request $q, Response $r, ar
 $app->get('/admin/uploads[/[{subdir:.*}/]]', function (Request $q, Response $r, array $args) {
 	
 	if(!isset($_SESSION['id'])){
-		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');
+		return $r->withStatus(302)->withHeader('Location', ABSPATH.'/admin/login/');
 	}
 	
 	$blobModel = new Blob($this->db);
@@ -456,7 +454,7 @@ $app->get('/admin/login[/]', function (Request $q, Response $r, $args) {
 //Admin API request - Get All Routes (to verify constraint problems)
 $app->get('/admin/getAllRoutes[/]', function (Request $q, Response $r, array $args) {
 	
-	if(!isset($_SESSION['id'])){return $r->withStatus(302)->withHeader('Location', ABSPATH.'/user/login/');}
+	if(!isset($_SESSION['id'])){return $r->withStatus(302)->withHeader('Location', ABSPATH.'/admin/login/');}
 	
 	$adminModel = new Admin($this->db);
 	$allRoutes = $adminModel->getAllRoutes();

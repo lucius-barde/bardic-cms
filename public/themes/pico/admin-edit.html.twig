@@ -3,12 +3,11 @@
 </header>
 <main class="container">
 <div id="adminEdit">
-		
-		<form id="adminEdit" method="post" action="{{ ABSPATH }}/blob/{{ blob.id }}/update/">
+		<form id="adminEdit" method="post" action="{{ ABSPATH }}/{{ action == 'adminCreate' ? type : blob.type }}/{{ action == 'adminCreate' ? 'create/' :  blob.id ~ '/update/' }}">
 			<div class="grid">
 				<div class="admin-edit-col-left"> 
 					
-					<input type="hidden" class="" id="type" name="type" value="{{ blob.type }}" />
+					<input type="hidden" class="" id="type" name="type" value="{{ action == 'adminCreate' ? type : blob.type }}" />
 			
 
 					<div>
@@ -239,20 +238,6 @@
 					  </div><!-- /form-group -->
 
 					
-				
-				{% if get.callback == "frontend" %}	
-					{% if callback %}
-					<input type="hidden" name="callback" id="callback" value="{{ callback }}" />
-					{% else %}
-					<input type="hidden" name="callback" id="callback" value="{{ blob.lang }}/{{ site.params.homelink }}" />
-					{% endif %}
-
-				{% elseif get.callback == "adminSitemap" %}
-					<input type="hidden" name="callback" id="callback" value="admin/sitemap" />
-				{% else %}
-					<input type="hidden" name="callback" id="callback" value="admin/dashboard" />
-				{% endif %}
-				
 
 			</div>
 		</div>
@@ -260,7 +245,7 @@
 			
 			<div></div>
 			<div>
-				<button class="btn btn-primary" type="submit">{{ i18n.updateElement }}</button>
+				<button class="btn btn-primary" type="submit">{{ action == "adminCreate" ? i18n.create: i18n.updateElement }}</button>
 			</div>
 			<div></div>
 

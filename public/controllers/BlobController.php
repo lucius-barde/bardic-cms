@@ -5,7 +5,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 
 
-$app->post('/blob/add[/]', function (Request $q, Response $r, array $args) {
+$app->post('/{type:[a-z]+}/create[/]', function (Request $q, Response $r, array $args) {
 
 	
 	if(!isset($_SESSION['id'])){return $r->withStatus(403);}
@@ -14,19 +14,26 @@ $app->post('/blob/add[/]', function (Request $q, Response $r, array $args) {
 	$validate = new Validator($this->db);
 	$post = $q->getParsedBody();
 
-	$callback = $validate->asParam($post['callback']);
+	if($args['type'] != $post['type']){
+		return $r->withStatus(404)->withJson(['status'=>'error','statusText'=>'400 - Bad Request - Element type mismatch']);
+	}
+
+	$module = $blobModel->getDefaultParams($post['type']); 
+	if(!$module){
+		return $r->withStatus(404)->withJson(['status'=>'error','statusText'=>'404 - Module not found']);
+	}
+	
+
+	$callback = $validate->asParam($_GET['callback']);
 	
 	$create = $blobModel->addBlob($post);
 	
 	//clean order of siblings
 	$blobModel->cleanOrderValues($post['parent']);
 	
-	if(!!$callback && $create['statusCode'] == 200){
-
-
+	if(!!$callback && $create['status'] != "error"){
 		return $r->withStatus($create['statusCode'])->withHeader('Location',ABSPATH.'/'.$callback.'/'); 
 	}
-	
 	
 	return $r->withStatus($create['statusCode'])->withJson($create);
 	
@@ -34,16 +41,22 @@ $app->post('/blob/add[/]', function (Request $q, Response $r, array $args) {
 
 
 
-$app->get('/blob/{id}/delete[/]', function (Request $q, Response $r, array $args) {
+$app->get('/{type:[a-z]+}/{id:[0-9]+}/delete[/]', function (Request $q, Response $r, array $args) {
 	
 	if(!isset($_SESSION['id'])){return $r->withStatus(403);}
 	
+	$blobModel = new Blob($this->db);
+	$module = $blobModel->getDefaultParams($args['type']);
+	if(!$module){
+		return $r->withStatus(404)->withJson(['status'=>'error','statusText'=>'404 - Not Found']);
+	}
+
 	$adminModel = new Admin($this->db);
 	$id = (int)$args['id'];
 	
 	if(!$adminModel->canDelete($id)){return $r->withStatus(403);}
 	
-	$blobModel = new Blob($this->db);
+	
 	$status = $blobModel->getBlobStatus($id);
 	
 	$validate = new Validator($this->db);
@@ -85,44 +98,41 @@ $app->get('/blob/{id}/delete[/]', function (Request $q, Response $r, array $args
 
 
 
-$app->get('/blob/{id}/status/{s}[/]', function (Request $q, Response $r, array $args) {
-	
-	if(!isset($_SESSION['id'])){return $r->withStatus(403);}
-	
-	$blobModel = new Blob($this->db);
-	$id = (int)$args['id'];
-	$statusField = (int)$args['status'];
-	$setStatusField = $blobModel->setBlobStatus($id,$statusField);
-	return $r->withStatus($setStatusField['statusCode'])->withJson($setStatusField);
-	
-})->setName('setBlobStatus');
 
-
-
-$app->post('/blob/{id}/update[/]', function (Request $q, Response $r, array $args) {
+$app->post('/{type:[a-z]+}/{id:[0-9]+}/update[/]', function (Request $q, Response $r, array $args) {
 	 
 	if(!isset($_SESSION['id'])){return $r->withStatus(403);}
 	
+
+	
 	$blobModel = new Blob($this->db);
+	$post = $q->getParsedBody();
+
+	if($args['type'] != $post['type']){
+		return $r->withStatus(404)->withJson(['status'=>'error','statusText'=>'400 - Bad Request - Element type mismatch']);
+	}
+
+	$module = $blobModel->getDefaultParams($post['type']); 
+	if(!$module){
+		return $r->withStatus(404)->withJson(['status'=>'error','statusText'=>'404 - Module not found']);
+	}
+	
 	$validate = new Validator($this->db);
 	
-	
-	//$post = $validate->validateArray($q->getParsedBody(), 'asString'); //TODO: improve for id,url,status,edited etc.
-	$post = $q->getParsedBody();
 	$id = (int)$args['id'];
-	$callback = $validate->asParam($post['callback']);
+	$callback = $validate->asParam($args['callback']);
 	$update = $blobModel->updateBlob($id,$post);
 	
-	if(!!$callback && $update['statusCode'] == 200){
-		
-		//clean order of siblings - TODO: check if blob module has order
-		if($post['type'] != "site" and $post['type'] != "user"){
-			$blobModel->cleanOrderValues($post['parent']);
-		}
+	if($update['status'] == "error"){
+		return $r->withStatus($update['statusCode'])->withJson($update);
+	}
+	
+	if(!!$callback && $update['status'] != "error"){
 		return $r->withStatus($update['statusCode'])->withHeader('Location',ABSPATH.'/'.$callback.'/'); 
 	}
 	
 	return $r->withStatus($update['statusCode'])->withJson($update);
+	
 	
 })->setName('updateBlob');
 
@@ -131,8 +141,13 @@ $app->get('/{type:[a-z]+}/{id:[0-9]+}[/]', function (Request $q, Response $r, ar
 	
 	$blobModel = new Blob($this->db);
 	$module = $blobModel->getDefaultParams($args['type']);
+
 	if(!$module){
 		return $r->withStatus(404)->withJson(['status'=>'error','statusText'=>'404 - Not Found']);
+	}
+
+	if($module['private'] && !isset($_SESSION['id'])){
+		return $r->withStatus(404)->withJson(['status'=>'error','statusText'=>'403 - Forbidden']);
 	}
 
 	$id = (int)$args['id'];

@@ -2,7 +2,7 @@
 	{% include "admin-nav.html.twig" %}
 </header>
 <main class="container">
-	<div id="adminEdit">
+	<div id="adminCreate">
 
 		{% if get.parent %}
 			{% set setParent = blob %}
@@ -12,7 +12,7 @@
 			{% endif %}
 			{% endfor %}
 		{% endif %}
-		<form id="adminCreate" method="post" action="{{ ABSPATH }}/blob/add/">
+		<form id="adminCreate" method="post" action="{{ ABSPATH }}/{{ blob.type }}/add/">
 		  
 			<div class="grid">
 				<div class="admin-edit-col-left"> 

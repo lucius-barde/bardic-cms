@@ -6,7 +6,7 @@
 		<div>
 			
 			<div style="padding-bottom:1em;">
-				<a role="button" class="button-small"  href="{{ ABSPATH }}/admin/create/?type=page&callback={{ action }}"><i class="fa fa-file"></i> {{ i18n.newPage }}</a>
+				<a role="button" class="button-small"  href="{{ ABSPATH }}/admin/create/page/?callback={{ action }}"><i class="fa fa-file"></i> {{ i18n.newPage }}</a>
 				{% for key,lang in site.params.languages %}
 				{% if langFilter == key %}
 					<a role="button" class="button-small contrast" href="{{ ABSPATH }}/admin/sitemap">{{ key }}</a>

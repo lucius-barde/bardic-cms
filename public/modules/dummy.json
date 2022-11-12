@@ -2,6 +2,7 @@
 	"name":	"Dummy Module",
 	"scope": "any",
 	"icon": "fa fa-drafting-compass",
+	"private": true,
 	"baseFormat":{
 		"dummytext":{
 			"type":"text",

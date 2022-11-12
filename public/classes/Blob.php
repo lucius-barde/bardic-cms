@@ -59,7 +59,7 @@ class Blob{
 			} 
 			if(!$sql) return ['status'=>'error','statusCode'=>500,'statusText'=>'add_blob_database_error'];
 		}
-		return ['status'=>'success','statusCode'=>200,'statusText'=>'add_blob_success','newData'=>$newdata];
+		return ['status'=>'success','statusCode'=>200,'statusText'=>'add_blob_success','data'=>$newdata];
 	}
 	
 
@@ -292,7 +292,10 @@ class Blob{
 			} 
 			if(!$sql) return ['status'=>'error','statusCode'=>500,'statusText'=>'update_blob_database_error'];
 			
-			return ['status'=>'success','statusCode'=>200,'statusText'=>'update_blob_success'];
+			$returnSql = $this->db->prepare('SELECT * FROM '.TBL.' WHERE id = :id;');
+			$returnSql->execute([':id'=>$id]);
+			$updatedData = $returnSql->fetch();
+			return ['status'=>'success', 'statusCode'=>200, 'data'=>$updatedData];
 			
 		}else {
 			return ['status'=>'error','statusCode'=>500,'statusText'=>'update_blob_empty_post_error'];

@@ -5,9 +5,10 @@
 <div id="adminDashboard">
 	
 	<div style="padding-bottom:1em;">
-		{% for blobType in blobTypes %}
-		<a role="button" class="button-small {{ type == blobType.type or (searchType and type == searchType) ? 'secondary' : '' }}" href="{{ ABSPATH }}/admin/dashboard{{ type == blobType.type ? '' : '/type/' ~ blobType.type }}/">
+		{% for blobType in defaultBlobTypes %}
+		<a role="button" class="button-small {{ type == blobType.type or (searchType and type == searchType) ? 'secondary' : '' }}" href="{{ ABSPATH }}/admin/dashboard{{ type == blobType.key ? '' : '/type/' ~ blobType.key }}/">
 			<i class="{{ blobType.defaultParams.icon }}"></i>
+			{{ blobType.key }}
 			{{ i18n._modules[blobType.type].namePlural ? i18n._modules[blobType.type].namePlural : blobType.type }}
 		</a>
 		{% endfor %}
