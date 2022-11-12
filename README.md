@@ -6,7 +6,6 @@ The 3rd version of OppidumCMS is mainly focused on API functionalities, and can 
 
 OppidumCMS is developed by the one-man-team Lucius Arkay.
 
-### /!\ WORK IN PROGRESS ! THE FOLLOWING DOCUMENTATION IS THE ONE OF OPPIDUMCMS V2 ! OPCMS V3 IS A SIMPLIFIED VERSION OF IT, AND THE DOCUMENTATION HAS YET TO BE UPDATED. 
 
 
 **OppidumCMS features:**
@@ -19,6 +18,12 @@ OppidumCMS is developed by the one-man-team Lucius Arkay.
 - Polymorphic, generic objects: deploy custom modules within minutes
 - Both frontend and backend highly customizable (OppidumCMS is a canvas of a CMS)
 
+**Updates in version 3.0 compared to version 2.x**
+- As of 3.0, all object types can be accessed through an API endpoint. But only the object types which are activated (= .json file being present) in the modules folder can be accessible. By default this access is public, if you need fully private modules you can configure so in the .json description of the module (check "dummy.json" for an example).
+- As of 3.0, OpCMS doesn't require a 'site' and a 'user' entry in the database. Site ParamsThe admin panel can work with zero content in database.
+- In a purpose of simplification, the starter theme has been removed, and only the "pico" theme, which doesn't use any javascript, is used in the admin. If you need anything more dynamic, you can create a webapp in a modern JS framework and use the API for both frontend and admin.
+- "User" blob type was removed, as well as the "author" field and everything related to access level, since these functionalities were never used. OpCMS v3 focuses on simple API CRUD requests, and it relies now on minimal settings, which means a single superuser which can be configured in config.php.
+- In PageController.php you can now easily switch between a support for frontend (= PHP generates standard web pages) or JSON responses (= PHP serves data for web apps only)
 
 ## Requirements
 - A web server, preferably a Linux - Apache - MariaDB - PHP stack.
@@ -31,22 +36,23 @@ OppidumCMS is developed by the one-man-team Lucius Arkay.
 - `composer install` in the public folder, to generate the public/vendor folder.
 - If using docker: run `docker-compose up`
 - copy config.sample.php to config.php
-- copy/paste the initial SQL content from config.php to PHPMyAdmin or Adminer
+- copy/paste the SQL table structure from config.php to PHPMyAdmin or Adminer
 - setup your own configuration in config.php
-- create an 'uploads' folder in /public and allow write permissions to your webserver.
-- Done ! You generated an OppidumCMS site with a homepage and an admin user. Default credentials are user: admin, password: Qwe12345
+- if you need to use the uploading tool available in the admin, create an 'uploads' folder in /public and allow write permissions to your webserver.
+- Done ! You set up your Oppidum CMS site.
+- (Optionally: check the rendering mode in PageController, and activate JSON or frontend depending on your needs)
 
 
 ## Single-table
-- OppidumCMS uses a single table and polymorphic objects (called "blobs") which uses the same fields, be it a page, a paragraph, a media, a user, a custom object, etc.
+- OppidumCMS uses a single table and polymorphic objects (called "blobs") which uses the same fields, be it a page, a paragraph, a media, a user, a custom object, etc. In OppidumCMS the term BLOB stands for Blobby Long Object, in other words, a polymorphic object where any of its types uses the same basic fields ("params" being the array of additional fields).
+
 	- INT(11) id: unique identifier
-	- VARCHAR(32) type: object type (i.e. "page", "paragraph", "image", "site" etc.)
+	- VARCHAR(32) type: object type (i.e. "page", "paragraph", "image", "littlepony" etc.)
 	- VARCHAR(128) url: unique resource locator
 	- VARCHAR name: human-readable name for the object
 	- TEXT content: directly loaded content
 	- INT parent: id of parent object
 	- INT status: 1=online, 0=offline, -1=deleted
-	- INT author: id of user who created the object
 	- TIMESTAMP edited: date of last modification
 	- VARCHAR lang: language identifier of the resource
 	- INT translation_of: id of an object which the object is a translation of
@@ -63,9 +69,23 @@ OppidumCMS is developed by the one-man-team Lucius Arkay.
 	- string pass: database password
 	- string dbname: database name
 	- string tbl: opcmsdev
+- array site: site parameters (formerly the "site" entry in OpCMS 2)
+	- string name: Default site title (if frontend is active)
+	- string content: Default site meta description (if frontend is active)
+	- array params:
+		- string default_language: the default language code
+		- string homelink: the url of the home page (must be in the same language as the default lang.)
+		- array languages: contains an array of the active languages ['code':'Language name']
+- array user: the default user (formerly the first "user" entry in OpCMS 2)
+	- string login: The login or email to access the admin panel or to query objects with status = 0
+	- string password: The password to access the admin panel or to query objects with status = 0
 - string abspath: the site's URL with http(s)://
 - string absdir: the site's root path on the server (e.g. /var/www/opcms)
 - string template_dir: relative path to the activated template
+
+
+===== WORK IN PROGRESS - WHAT COMES AFTER THIS LINE IS STILL V2 AND HASN'T YET BEEN UPDATED FOR V3 =====
+
 
 ## index.php
 
