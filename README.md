@@ -1,10 +1,13 @@
-# opcms v2.3
+# opcms v3.0
  
-OppidumCMS, with Docker compatibility.
+OppidumCMS 3 - Special API Version
 
-OppidumCMS (alias OpCMS) is a small, lightweight, single-table content management system (CMS) optimized for APIs with a frontend layer and an admin dashboard. OppidumCMS is based on Slim PHP framework and Twig, and all objects of any type in an OppidumCMS website share the same structure. OppidumCMS uses Markdown for rich-text content, and JSON for custom parameters and modules.
+The 3rd version of OppidumCMS is mainly focused on API functionalities, and can serve as a backend for both website and webapp frontend.
 
-OpCMS is developed by the one-man team Carte Blanche Web Development (cbwebdev) and is in final development.
+OppidumCMS is developed by the one-man-team Lucius Arkay.
+
+### /!\ WORK IN PROGRESS ! THE FOLLOWING DOCUMENTATION IS THE ONE OF OPPIDUMCMS V2 ! OPCMS V3 IS A SIMPLIFIED VERSION OF IT, AND THE DOCUMENTATION HAS YET TO BE UPDATED. 
+
 
 **OppidumCMS features:**
 - Ultra-lightweight (including few dependencies)

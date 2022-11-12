@@ -6,7 +6,6 @@
 		<div>
 			
 			<div style="padding-bottom:1em;">
-				<a role="button" class="button-small"  href="{{ ABSPATH }}/admin/create/page/?callback={{ action }}"><i class="fa fa-file"></i> {{ i18n.newPage }}</a>
 				{% for key,lang in site.params.languages %}
 				{% if langFilter == key %}
 					<a role="button" class="button-small contrast" href="{{ ABSPATH }}/admin/sitemap">{{ key }}</a>
@@ -43,16 +42,18 @@
 									<h6>{{ level1.type }} #{{ level1.id }} {{ level1.lang }}</h6>
 								</hgroup>	
 								{% endif %}
+							
 
+							
 							<ul>
 								<li class="sitemap-page-add">
 									<details role="list">
 										<summary aria-haspopup="listbox">{{ i18n.add }}</summary>
 										<ul>
-											{% for type in blobTypes %}
-												{% if type.defaultParams.scope in ["pageElement","page"] %}
+											{% for blobType in defaultBlobTypes %}
+												{% if blobType.defaultParams.scope in ["pageElement","page","any"] %}
 												<li>
-													<a href="{{ ABSPATH }}/admin/create/?parent={{ level1.id }}&type={{ type.key }}&callback={{ action }}"><i class="{{ type.defaultParams.icon }}"></i> {{ i18n._modules[type.key].name ?? type.defaultParams.name }}</a>
+													<a href="{{ ABSPATH }}/admin/create/{{ blobType.key }}?parent={{ level1.id }}&callback={{ action }}"><i class="{{ blobType.defaultParams.icon }}"></i> {{ i18n._modules[blobType.key].name ?? blobType.defaultParams.name }}</a>
 												</li>
 												{% endif %}
 											{% endfor %}

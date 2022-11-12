@@ -78,13 +78,13 @@ foreach($rewriters as $rewriter){
 			$params = [ 
 				"ABSPATH" => ABSPATH,
 				"ABSDIR" => ABSDIR,
-				"RECAPTCHA_V3_SITE_KEY" => RECAPTCHA_V3_SITE_KEY,
+				//"RECAPTCHA_V3_SITE_KEY" => RECAPTCHA_V3_SITE_KEY,
 				"action" => "read",
 				"blob" => $blob,
 				"blobModel" => $blobModel,
 				"blocks" => $blockModel->getBlocks(),
 				"elements" => $pageModel->getPageElements($id),
-				'i18n'=>$adminModel->getTranslations($site['params']['default_language']),
+				//'i18n'=>$adminModel->getTranslations($site['params']['default_language']),
 				"isHome" => $pageModel->isHome($blob['id'],$blob['lang']),
 				"session" => $_SESSION,
 				"site" => $site,
@@ -95,11 +95,10 @@ foreach($rewriters as $rewriter){
 			];
 			
 			
-			$r = $this->view->render($r, "standard.html.twig", $params);
-			//return $r->withJson($params);
+			//$r = $this->view->render($r, "standard.html.twig", $params); //display pages in frontend template
+			return $r->withJson($params); //display pages in JSON
 		else:
-			$r->getBody()->write("<h3>404 - Not Found</h3>");
-			return $r->withStatus(404);
+			return $r->withStatus(404)->withJson(['status'=>'error','statusText'=>'404 - Page not found']);
 		endif;  
 
 	})->setName('page-'.$rewriter['id']);
@@ -133,13 +132,13 @@ $app->get('/', function(Request $q, Response $r, $args){
 		$params = [ 
 			"ABSPATH" => ABSPATH,
 			"ABSDIR" => ABSDIR,
-			"RECAPTCHA_V3_SITE_KEY" => RECAPTCHA_V3_SITE_KEY,
+			//"RECAPTCHA_V3_SITE_KEY" => RECAPTCHA_V3_SITE_KEY,
 			"action" => "read",
 			"blob" => $blob,
 			"blobModel" => $blobModel,
 			"blocks" => $blocks,
 			"elements" => $pageModel->getPageElements($id),
-			'i18n'=>$adminModel->getTranslations($site['params']['default_language']),
+			//'i18n'=>$adminModel->getTranslations($site['params']['default_language']),
 			"isHome" => true,
 			"session" => $_SESSION,
 			"site" => $site,
@@ -148,11 +147,10 @@ $app->get('/', function(Request $q, Response $r, $args){
 			"type" => $blob['type'],
 			"validate" => $validate
 		];
-		$r = $this->view->render($r, "standard.html.twig", $params);
-		//return $r->withJson($params);
+		//$r = $this->view->render($r, "standard.html.twig", $params); //display front page in frontend template
+		return $r->withJson($params);  //display front page in JSON
 	else:
-		$r->getBody()->write("<h3>404 - Not Found</h3>");
-		return $r->withStatus(404);
+		return $r->withStatus(404)->withJson(['status'=>'error','statusText'=>'404 - Page not found']);
 	endif;  
 	
 })->setName('homePage');

@@ -111,7 +111,7 @@
 							<select class="small" id="parent" name="parent">
 								<option value="0">{{ i18n.noParent }}</option>
 								{% for pblob in blobParentList %}
-									<option value="{{ pblob.id }}"{% if pblob.id == blob.parent %} selected{% endif %}>{{ i18n._modules[pblob.type].name }} "{{ pblob.name ?? pblob.url }}"</option>
+									<option value="{{ pblob.id }}"{% if pblob.id == blob.parent or (action == "adminCreate" and pblob.id == get.parent) %} selected{% endif %}>{{ i18n._modules[pblob.type].name }} "{{ pblob.name ?? pblob.url }}"</option>
 								{% endfor %}
 						
 							</select>
@@ -189,7 +189,7 @@
 									<div class="grid">
 
 										<div>
-											<input type="hidden" class="small" data-keylevel="1" name="paramsKeys[{{ key }}]" value="{{ key }}" />
+											<input type="hidden" class="small" data-keylevel="1" name="paramsKeys[{{ key }}]"" value="{{ key }}" />
 											<label class="small">{{ i18n._modules[blob.type][key] ?  i18n._modules[blob.type][key] : key }}:</label>
 										</div>
 
@@ -225,7 +225,7 @@
 												{% elseif get.params.baseFormat[key].type == "checkbox" %}
 													<input type="checkbox" class="small" data-paramlevel="1" {% if param == true %}checked{% endif %} name="params[{{ key }}]" />
 												{% else %}
-													<input type="text" class="small" data-paramlevel="1" name="params[{{ key }}]" value="{{ param }}" />
+													<input type="text" class="small" data-paramlevel="1" name="params[{{ key }}]" value="{{ param }}" placeholder="{{ get.params.baseFormat[key].placeholder }}" />
 												{% endif %}
 												
 											</div>
@@ -245,6 +245,8 @@
 			
 			<div></div>
 			<div>
+				<p><small>This page will redirect to: {{ get.callback ? get.callback : "JSON Response"}}</small></p>
+				<input type="hidden" name="callback" value="{{ get.callback }}" />
 				<button class="btn btn-primary" type="submit">{{ action == "adminCreate" ? i18n.create: i18n.updateElement }}</button>
 			</div>
 			<div></div>

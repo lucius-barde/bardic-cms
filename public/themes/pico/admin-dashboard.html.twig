@@ -5,8 +5,9 @@
 <div id="adminDashboard">
 	
 	<div style="padding-bottom:1em;">
+		
 		{% for blobType in defaultBlobTypes %}
-		<a role="button" class="button-small {{ type == blobType.type or (searchType and type == searchType) ? 'secondary' : '' }}" href="{{ ABSPATH }}/admin/dashboard{{ type == blobType.key ? '' : '/type/' ~ blobType.key }}/">
+		<a role="button" class="button-small {{ type != blobType.key ? 'secondary' : '' }}" href="{{ ABSPATH }}/admin/dashboard{{ type == blobType.key ? '' : '/type/' ~ blobType.key }}/">
 			<i class="{{ blobType.defaultParams.icon }}"></i>
 			{{ blobType.key }}
 			{{ i18n._modules[blobType.type].namePlural ? i18n._modules[blobType.type].namePlural : blobType.type }}
@@ -16,7 +17,7 @@
 	<div>
 		<form class="grid" id="dashboardSearch" name="dashboardSearch" style="text-align:right;" method="get" action="{{ ABSPATH }}/admin/dashboard/">
 			<div>
-			<input type="search" id="searchTerm" value="{{ searchTerm }}" name="searchTerm" placeholder="{{ type ? i18n.searchIn~i18n._modules[type].namePlural : i18n.search }}" />
+			<input type="search" id="searchTerm" value="{{ searchTerm }}" name="searchTerm" placeholder="{{ blobType ? i18n.searchIn~i18n._modules[blobType].namePlural : i18n.search }}" />
 			<input type="hidden" id="type" value="{{ type ? type : searchType }}" name="type" />
 			</div>
 		</form>
@@ -66,7 +67,7 @@
 			<!--<td>{{ blob.edited }}</td>-->
 			<td>{{ blob.lang }}</td> 
 			<td>{{ blob.translation_of }}</td>
-			<td class="options"><a href="{{ ABSPATH }}/admin/{{ blob.id }}/edit/">{{ i18n.edit }}</a>&nbsp;&nbsp;<a href="{{ ABSPATH }}/blob/{{ blob.id }}/delete/?callback={{ action }}">{{ i18n.delete }}</a></td>
+			<td class="options"><a href="{{ ABSPATH }}/admin/{{ blob.id }}/edit/?callback=admin">{{ i18n.edit }}</a>&nbsp;&nbsp;<a href="{{ ABSPATH }}/blob/{{ blob.id }}/delete/?callback={{ action }}">{{ i18n.delete }}</a></td>
 			</tr>
 			{% endfor %}
 		</tbody>

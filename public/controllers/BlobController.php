@@ -24,14 +24,14 @@ $app->post('/{type:[a-z]+}/create[/]', function (Request $q, Response $r, array 
 	}
 	
 
-	$callback = $validate->asParam($_GET['callback']);
-	
+	$callback = $validate->asParam($post['callback']);
 	$create = $blobModel->addBlob($post);
 	
 	//clean order of siblings
 	$blobModel->cleanOrderValues($post['parent']);
-	
-	if(!!$callback && $create['status'] != "error"){
+
+	if(($callback == "admin" || $callback == "adminSitemap") && $create['status'] != "error"){
+		if($callback == "adminSitemap"){$callback = "admin/sitemap";}
 		return $r->withStatus($create['statusCode'])->withHeader('Location',ABSPATH.'/'.$callback.'/'); 
 	}
 	
@@ -120,16 +120,18 @@ $app->post('/{type:[a-z]+}/{id:[0-9]+}/update[/]', function (Request $q, Respons
 	$validate = new Validator($this->db);
 	
 	$id = (int)$args['id'];
-	$callback = $validate->asParam($args['callback']);
+	$callback = $validate->asParam($post['callback']);
 	$update = $blobModel->updateBlob($id,$post);
 	
 	if($update['status'] == "error"){
 		return $r->withStatus($update['statusCode'])->withJson($update);
 	}
 	
-	if(!!$callback && $update['status'] != "error"){
+	if(($callback == "admin" || $callback == "adminSitemap") && $update['status'] != "error"){
+		if($callback == "adminSitemap"){$callback = "admin/sitemap";}
 		return $r->withStatus($update['statusCode'])->withHeader('Location',ABSPATH.'/'.$callback.'/'); 
 	}
+	
 	
 	return $r->withStatus($update['statusCode'])->withJson($update);
 	

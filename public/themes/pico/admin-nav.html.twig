@@ -23,10 +23,10 @@
 						{% set setParent = blob %}
 					{% endif %}
 					{% endfor %}
-					{{ i18n.createNewElement }} : {{ i18n._modules[get.type].name }} {{ i18n.in }} "{{ setParent.name }}" (#{{ get.parent }})
+					{{ i18n.createNewElement }} : {{ type }} {{ i18n.in }} "{{ setParent.name }}" (#{{ get.parent }})
 
 				{% elseif get.params.name %}
-					{{ i18n.createNewElement }} : {{ i18n._modules[get.type].name }}
+					{{ i18n.createNewElement }} : {{ type }}
 
 				{% elseif get.parent %}
 					{% set setParent = blob %}
@@ -53,14 +53,30 @@
 		</li>
 	</ul>
 	<ul>
+		{% if action == "admin" or action == "adminSitemap" %}
 		<li>
+			<details role="list" style="display:inline-block;">
+				<summary aria-haspopup="listbox">{{ i18n.new }}</summary>
+				<ul>
+					{% for blobType in defaultBlobTypes %}
+						{% if blobType.defaultParams.scope in ["page","any"] %}
+						<li>
+							<a href="{{ ABSPATH }}/admin/create/{{ blobType.key }}?callback={{ action }}"><i class="{{ blobType.defaultParams.icon }}"></i> {{ i18n._modules[blobType.key].name ?? blobType.defaultParams.name }}</a>
+						</li>
+						{% endif %}
+					{% endfor %}
+				</ul>
+			</details>
+		</li>
+		{% endif %}
+		<li>
+			
 			<details role="list" dir="rtl">
 				<summary aria-haspopup="listbox">{{ i18n.manage }}</summary>
 				<ul dir="ltr">
 					<li><a href="{{ ABSPATH }}/"> <b>{{ i18n.toWebsite }}</b></a></li>
 					<li><a href="{{ ABSPATH }}/admin/sitemap/"> {{ i18n.sitemap }}</a></li>
 					<li><a href="{{ ABSPATH }}/admin/dashboard/"> {{ i18n.dashboard }}</a></li>
-					<li><a href="{{ ABSPATH }}/admin/create/"> {{ i18n.new }}</a></li>
 					<li><a href="{{ ABSPATH }}/admin/uploads/"> {{ i18n.medias }}</a></li>
 					<li><a href="{{ ABSPATH }}/admin/recycle/"> {{ i18n.recycle }}</a></li>
 					<li><a href="{{ ABSPATH }}/admin/logout/"> {{ i18n.logout }}</a></li>
@@ -68,6 +84,7 @@
 			</details>
 			  
 		</li>
+		
 	</ul>
 	  
 					

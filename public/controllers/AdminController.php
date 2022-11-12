@@ -131,6 +131,7 @@ $app->get('/admin/dashboard/type/{type}/[{page:[0-9]+}/]', function (Request $q,
 	//get all kinds of blobs used on the site
 	$adminModel = new Admin($this->db);
 	$blobTypes = $adminModel->getBlobTypeList();
+	$defaultBlobTypes = $adminModel->getDefaultBlobsTypeList();
 	
 	
 	$params = [
@@ -140,6 +141,7 @@ $app->get('/admin/dashboard/type/{type}/[{page:[0-9]+}/]', function (Request $q,
 		'blobs'=>$blobs,
 		'blobCount'=>$blobCount,
 		'blobTypes'=>$blobTypes,
+		'defaultBlobTypes'=>$defaultBlobTypes, //existing in modules folder
 		'getOrderBy'=>($validate->asParam($_GET['orderby']) ? '?orderby='.$validate->asParam($_GET['orderby']) : false),
 		'getOrder'=>(in_array($_GET['order'],['ASC','DESC']) ? '&order='.$validate->asParam($_GET['order']) : false),
 		'i18n'=>$adminModel->getTranslations($siteObject['params']['default_language']),
@@ -168,22 +170,19 @@ $app->get('/admin/create/{type:[a-z]+}[/]', function (Request $q, Response $r, a
 	$validate = new Validator($this->db);
 	$site = $blobModel->getSiteProperties();
 	$translationBlobs = $blobModel->getAllBlobs([ 'admin'=>true,'lang'=>[$site['params']['default_lang']] ]); //used in field translation_of
-	$blobTypes = $adminModel->getDefaultBlobsTypeList();
+	$blobTypes = $adminModel->getBlobTypeList();
+	$defaultBlobTypes = $adminModel->getDefaultBlobsTypeList();
 	$blobParentList = $blobModel->getAllBlobs( ['admin'=>true,'type'=>['page','block']] );
 	$type = $validate->asParam($args['type']);
 	
-	//Pre-fill the create form
-	if(sizeof($_GET) > 0){
-		
-		$get = [];
-		$get['parent'] = $validate->asInt($_GET['parent']);
-		$tmpLang = $blobModel->getBlob($get['parent']);
-		$get['parentLang'] = $tmpLang['lang'];
-		
-		$get['params'] = $blobModel->getDefaultParams($get['type']);
-		$get['countSiblings'] = $blobModel->getAllBlobs(['parent'=>$get['parent'], 'onlyCount'=>true]); //used to put the default "order" value to the last element index + 1
-	}
-	
+	$get = [];
+	$get['parent'] = $validate->asInt($_GET['parent']);
+	$get['callback'] = $validate->asParam($_GET['callback']);
+	$tmpLang = $blobModel->getBlob($get['parent']);
+	$get['parentLang'] = $tmpLang['lang'];
+	$get['params'] = $blobModel->getDefaultParams($type);
+	$get['countSiblings'] = $blobModel->getAllBlobs(['parent'=>$get['parent'], 'onlyCount'=>true]); //used to put the default "order" value to the last element index + 1
+
 	
 	$params = [
 		'ABSPATH'=>ABSPATH,
@@ -191,6 +190,7 @@ $app->get('/admin/create/{type:[a-z]+}[/]', function (Request $q, Response $r, a
 		'action'=>'adminCreate',
 		'blobParentList' => $blobParentList,
 		'blobTypes' => $blobTypes,
+		'defaultBlobTypes'=>$defaultBlobTypes, //existing in modules folder
 		'get'=>$get,
 		'i18n'=>$adminModel->getTranslations($site['params']['default_language']),
 		'translationBlobs'=>$translationBlobs,
@@ -225,7 +225,8 @@ $app->get('/admin/{id}/edit/[status/{status}/]', function (Request $q, Response 
 	$blob = $blobModel->getBlob($id,['rawParams'=>false]);
 	$blobParentList = $blobModel->getAllBlobs( ['admin'=>true,'type'=>['page','block']] );
 	$site = $blobModel->getSiteProperties();
-	//$blobTypes = $adminModel->getDefaultBlobsTypeList();
+	$blobTypes = $adminModel->getBlobTypeList();
+	$defaultBlobTypes = $adminModel->getDefaultBlobsTypeList();
 	$translationBlobs = $blobModel->getAllBlobs([ 'admin'=>true,'lang'=>[$site['params']['default_lang']] ]); //used in field translation_of
 	
 	//Pre-fill the edit form
@@ -233,15 +234,16 @@ $app->get('/admin/{id}/edit/[status/{status}/]', function (Request $q, Response 
 	$get = [];
 	$get['params'] = $blobModel->getDefaultParams($blob['type']);
 	$get['countSiblings'] = $blobModel->getAllBlobs(['parent'=>$get['parent'], 'onlyCount'=>true]); //used to put the default "order" value to the last element index + 1
-	if($get['callback'] == 'frontend'){
-		$callback = $adminModel->getPageUrl($id);
-	}
+	$get['callback'] = $validate->asParam($_GET['callback']);
+	
 	$params = [
 		'ABSPATH'=>ABSPATH,
 		'ABSDIR'=>ABSDIR,
 		'action'=>'adminEdit',
 		'blob'=>$blob,
 		'blobParentList'=>$blobParentList,
+		'blobTypes' => $blobTypes,
+		'defaultBlobTypes'=>$defaultBlobTypes, //existing in modules folder
 		'get'=>$get,
 		'translationBlobs'=>$translationBlobs,
 		'i18n'=>$adminModel->getTranslations($site['params']['default_language']),
@@ -286,11 +288,17 @@ $app->get('/admin/recycle/[{page:[0-9]+}/]', function (Request $q, Response $r, 
 	
 	$siteObject = $blobModel->getSiteProperties();
 
+
+	$blobTypes = $adminModel->getBlobTypeList();
+	$defaultBlobTypes = $adminModel->getDefaultBlobsTypeList();
+
 	$params = [
 		'ABSPATH'=>ABSPATH,
 		'ABSDIR'=>ABSDIR,
 		'action'=>'adminRecycle',
 		'blobs'=>$blobs,
+		'blobTypes' => $blobTypes,
+		'defaultBlobTypes'=>$defaultBlobTypes, //existing in modules folder
 		'getOrderBy'=>($validate->asParam($_GET['orderby']) ? '?orderby='.$validate->asParam($_GET['orderby']) : false),
 		'getOrder'=>(in_array($_GET['order'],['ASC','DESC']) ? '&order='.$validate->asParam($_GET['order']) : false),
 		'paged'=>$paged,
@@ -323,7 +331,8 @@ $app->get('/admin/sitemap[/]', function (Request $q, Response $r, array $args) {
 	$langFilter = $validate->asParam($_GET['langFilter']);
 
 	$sitemap = $adminModel->getSitemap(['langFilter'=>$langFilter,'withBlocks'=>true]);
-	$blobTypes = $adminModel->getDefaultBlobsTypeList();
+	$blobTypes = $adminModel->getBlobTypeList();
+	$defaultBlobTypes = $adminModel->getDefaultBlobsTypeList();
 
 	$siteObject = $blobModel->getSiteProperties();
 	
@@ -333,6 +342,7 @@ $app->get('/admin/sitemap[/]', function (Request $q, Response $r, array $args) {
 		'action'=>'adminSitemap',
 		'langFilter'=>$langFilter,
 		'blobTypes'=>$blobTypes,
+		'defaultBlobTypes'=>$defaultBlobTypes,
 		'i18n'=>$adminModel->getTranslations($siteObject['params']['default_language']),
 		'sitemap'=>$sitemap,
 		'site'=>$siteObject,
