@@ -21,8 +21,8 @@ OppidumCMS is developed by the one-man-team Lucius Arkay.
 **Updates in version 3.0 compared to version 2.x**
 - As of 3.0, all object types can be accessed through an API endpoint. But only the object types which are activated (= .json file being present) in the modules folder can be accessible. By default this access is public, if you need fully private modules you can configure so in the .json description of the module (check "dummy.json" for an example).
 - As of 3.0, OpCMS doesn't require a 'site' and a 'user' entry in the database. Site ParamsThe admin panel can work with zero content in database.
-- In a purpose of simplification, the starter theme has been removed, and only the "pico" theme, which doesn't use any javascript, is used in the admin. If you need anything more dynamic, you can create a webapp in a modern JS framework and use the API for both frontend and admin.
-- "User" blob type was removed, as well as the "author" field and everything related to access level, since these functionalities were never used. OpCMS v3 focuses on simple API CRUD requests, and it relies now on minimal settings, which means a single superuser which can be configured in config.php.
+- In a purpose of simplification, the starter theme has been removed, and only the "pico" theme, which doesn't use any javascript, is used in the admin. The only exception being the admin/uploads page. If you need anything more dynamic, you can create a webapp in a modern JS framework and use the API to create your own custom admin pages.
+- "User" blob type was removed, as well as the "author" field and everything related to access level, since these functionalities were never used. OpCMS v3 focuses on simple API CRUD requests, and it relies now on minimal settings, which means a single superuser which can be configured in config.php. Multi user, or most probably API keys, might be added in the future.
 - In PageController.php you can now easily switch between a support for frontend (= PHP generates standard web pages) or JSON responses (= PHP serves data for web apps only)
 
 ## Requirements
