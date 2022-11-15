@@ -1,6 +1,7 @@
 {
 	"name":	"Paragraph",
 	"scope": "pageElement",
+	"private":true,
 	"icon": "fa fa-file-alt",
 	"baseFormat":  {
 		"order":{

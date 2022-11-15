@@ -21,6 +21,7 @@ OppidumCMS is developed by the one-man-team Lucius Arkay.
 **Updates in version 3.0 compared to version 2.x**
 - As of 3.0, all object types can be accessed through an API endpoint. But only the object types which are activated (= .json file being present) in the modules folder can be accessible. By default this access is public, if you need fully private modules you can configure so in the .json description of the module (check "dummy.json" for an example).
 - As of 3.0, OpCMS doesn't require a 'site' and a 'user' entry in the database. Site ParamsThe admin panel can work with zero content in database.
+- As of 3.0, an object type can no longer be modified in admin.
 - In a purpose of simplification, the starter theme has been removed, and only the "pico" theme, which doesn't use any javascript, is used in the admin. The only exception being the admin/uploads page. If you need anything more dynamic, you can create a webapp in a modern JS framework and use the API to create your own custom admin pages.
 - "User" blob type was removed, as well as the "author" field and everything related to access level, since these functionalities were never used. OpCMS v3 focuses on simple API CRUD requests, and it relies now on minimal settings, which means a single superuser which can be configured in config.php. Multi user, or most probably API keys, might be added in the future.
 - In PageController.php you can now easily switch between a support for frontend (= PHP generates standard web pages) or JSON responses (= PHP serves data for web apps only)
@@ -84,24 +85,16 @@ OppidumCMS is developed by the one-man-team Lucius Arkay.
 - string template_dir: relative path to the activated template
 
 
-===== WORK IN PROGRESS - WHAT COMES AFTER THIS LINE IS STILL V2 AND HASN'T YET BEEN UPDATED FOR V3 =====
 
 
 ## index.php
 
-### site constants
-- ABSPATH: populated from $config['abspath'] in config.php.
-- ABSDIR: populated from $config['abspath'] in config.php.
-- TBL: populated from $config['db']['tbl'] in config.php.
-- TEMPLATE_DIR: populated from $config['template_dir'] in config.php.
-
 ### MVC (model-view-controller)
 OppidumCMS uses a model-view-controller architecture based on Slim PHP's routing system.  The process is:
 
-- The called URL will be executed by the controller which handles its route (i.e. /admin by AdminController, /blob by BlobController, etc.)
+- The called URL will be executed by the controller which handles its route (i.e. AdminController handles all /admin pages, BlobController handles blob creation/update/etc., PageController handles the routes of the public pages, etc.)
 - The controller executes some code, retrieves some parameters, and pass those parameters either to the view renderer, or to the JSON renderer.
-- The view renderer passes all the aforementioned parameters to the root template **standard.html.twig** and executes it. The *action* parameter defines which page / partial template will be loaded.
-
+- The view renderer passes all the aforementioned parameters either to JSON, or to the root template **standard.html.twig** if the frontend is used, and executes it. The *action* parameter defines which page / partial template will be loaded.
 
 If you create custom models and controllers, please load them at the bottom of index.php.
 
@@ -113,64 +106,46 @@ Controllers are located in /public/controllers
 Renders admin backend pages. All functions require SESSION.
 
 - admin /admin: redirects to userLogin or adminDashboard. 
-- adminCreate /admin/create: renders create from.
+- adminCreate /admin/create: renders edit from with the action of object creation.
 - adminDashboard /admin/dashboard/{page}: renders adminDashboard list with pagination.
 - adminDashboardByType /admin/dashboard/type/{type}/{page}: renders adminDashboard list from a single object type with pagination.
-- adminEdit /admin/{id}/edit: renders edit form.
-- adminRecycle: /admin/recycle: renders admin recycle bin (adminRecycle) list.
+- adminEdit /admin/{id}/edit: renders edit form with the action of object edition.
+- adminRecycle: /admin/recycle: renders admin recycle bin list.
 - adminSitemap: /admin/sitemap: renders admin site map view. Allows an optional GET parameter langFilter to filter by language.
-- adminTable: /admin/table/{page}: renders the quick editor tool with pagination.
 - adminUploads: /admin/uploads/{subdir}: renders the uploads manager.
 
 
-### APIController
-Functions that can be used in AJAX scripts.
-
-- apiGetAllRoutes /api/getAllRoutes: returns a JSON list of all existing routes in the site. Used in Validator.asURL to avoid duplicate urls. Requires SESSION.
-- apiGetBlob /api/getBlob/{id}: returns JSON data of blob #id. Requires SESSION.
-- apiUpdateField /api/updateField (POST): validates and updates a single field, returns JSON status. Used by adminTable. Requires:
-	- int $id: the id of existing blob
-	- string $field: the field's key (i.e. "type", "name", "url")
-	- mixed $value: the field's new value
-	- SESSION
-
-**Temporary, to be changed in the future:**
-- apiBcrypt /api/bcrypt/{testpassword}: a quick NOT SECURE function for admins to generate a new password. Requires SESSION.
-
-
 ### BlobController
-- addBlob /blob/add (POST): Retrieves form data with new blob data, creates a new blob, and returns JSON status or redirects to a callback URL if provided. Requires:
+Before V3 it handled all /blob routes, but they have been replaced by /{type} routes, where {type} is the current blob's type.
+
+- createBlob /{type}/create (POST): Creates a new blob from a formData, and returns JSON status or redirects to a callback URL if provided. Requires:
 	- param $callback: the callback URL
-	- param $type
 	- string $name
 	- url $url
 	- string $content
 	- int $parent
 	- int $status (-1,0,1)
-	- int $author
 	- param $lang
 	- int $translation_of
 	- json $params
 	- SESSION
-- deleteBlob /blob/{id}/delete: Deletes blob $id if status = -1, or else sets blob status to -1. Returns JSON status. Require SESSION.
-- setBlobStatus /blob/{id}/status/{s}: Set blob $id status to value $s. Requires:
-	- int $id
-	- int $status (-1,0,1)
-	- SESSION
-- updateBlob /blob/{id}/update (POST): Retrieves form data with existing blob data, updates blob $id, and returns JSON status or redirects to a callback URL if provided. Requires:
+- deleteBlob /{type}/{id}/delete: Deletes blob {id} if status = -1, or else sets blob status to -1. Returns JSON status. Will fail if the given {type} doesn't match with {id}'s type. Require SESSION.
+- getBlob /{type}/{id}: Displays blob {id} in JSON format, if its {type} allows public display and if its status is 1 (Requires SESSION in order to display a blob with status = 0)
+- updateBlob /{type}/{id}/update (POST): Updates an existing blob from a formData, and returns JSON status or redirects to a callback URL if provided. Will fail if the given {type} doesn't match with {id}'s type. Requires:
 	- int $id
 	- param $callback: the callback URL
-	- param $type
 	- string $name
 	- url $url
 	- string $content
 	- int $parent
 	- int $status (-1,0,1)
-	- int $author
 	- param $lang
 	- int $translation_of
 	- json $params
 	- SESSION
+
+
+===== WORK IN PROGRESS - WHAT COMES AFTER THIS LINE IS STILL V2 AND HASN'T YET BEEN UPDATED FOR V3 =====
 	
 
 ### FormController

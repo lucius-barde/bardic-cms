@@ -21,7 +21,7 @@ foreach($rewriters as $rewriter){
 		//If is 2nd level page
 		if(isset($rewriters[$parentPage]['url'])):
 		
-			if($rewriters[$parentPage]['parent'] == '1'):
+			if($rewriters[$parentPage]['parent'] == '0'):
 				$rewriter['url'] = $rewriters[$parentPage]['url'] . '/' . $rewriter['url'];
 			else:
 				//If is a 3rd level page
@@ -33,7 +33,6 @@ foreach($rewriters as $rewriter){
 	
 	/** MAP URL REWRITINGS **/
 	$app->get('/'.$rewriter['lang'].'/'.$rewriter['url'].'[/]', function(Request $q, Response $r, $args){
-		
 		//The rewrite logic
         $path = $q->getUri()->getPath();
 		$rewritePath = rtrim($path, '/'); //removes last trailing slash
@@ -57,7 +56,6 @@ foreach($rewriters as $rewriter){
 		$validate = new Validator($this->db);
 		$pageModel = new Page($this->db);
 		$blob = $blobModel->getBlob($id,$lang);
-		$blockModel = new Block($this->db);
 		
 		$site = $blobModel->getSiteProperties(); 
 			
@@ -82,7 +80,6 @@ foreach($rewriters as $rewriter){
 				"action" => "read",
 				"blob" => $blob,
 				"blobModel" => $blobModel,
-				"blocks" => $blockModel->getBlocks(),
 				"elements" => $pageModel->getPageElements($id),
 				//'i18n'=>$adminModel->getTranslations($site['params']['default_language']),
 				"isHome" => $pageModel->isHome($blob['id'],$blob['lang']),
@@ -111,14 +108,12 @@ $app->get('/', function(Request $q, Response $r, $args){
 	$validate = new Validator($this->db);
 	$pageModel = new Page($this->db);
 	$blobModel = new Blob($this->db);
-	$blockModel = new Block($this->db);
 
 	$site = $blobModel->getSiteProperties(); 
 	
 	$blob = $pageModel->getHomePage(true,$site['params']['default_language']);
 	$id = $blob['id'];
 	
-	$blocks = $blockModel->getBlocks();
 
 	if(!!$blob && $blob['type'] == 'page'):
 		
@@ -136,7 +131,6 @@ $app->get('/', function(Request $q, Response $r, $args){
 			"action" => "read",
 			"blob" => $blob,
 			"blobModel" => $blobModel,
-			"blocks" => $blocks,
 			"elements" => $pageModel->getPageElements($id),
 			//'i18n'=>$adminModel->getTranslations($site['params']['default_language']),
 			"isHome" => true,

@@ -78,7 +78,7 @@
 									</details>
 								</li>
 								<li class="sitemap-page-delete">
-									<a role="button" href="#" class="secondary" data-target="modal-delete" data-id="{{ level1.id }}" onClick="document.getElementById('elementToDelete').value = {{ level1.id }}; document.getElementById('elementToDeleteLabel').innerHTML = {{ level1.id }}; toggleModal(event)">{{ i18n.delete }}</a>
+									<a role="button" href="#" class="secondary" data-target="modal-delete" data-type="{{ level1.type }}" data-id="{{ level1.id }}" onClick="document.getElementById('elementToDelete').value = {{ level1.id }}; document.getElementById('elementToDeleteLabel').innerHTML = {{ level1.id }}; document.getElementById('elementToDeleteType').value = '{{ level1.type }}';  toggleModal(event)">{{ i18n.delete }}</a>
 								</li>
 							</ul>
 						</nav>
@@ -96,7 +96,7 @@
 								<h5>
 								{% for type in blobTypes %}
 									{% if type.key == level2.type %}
-										<i class="{{ type.defaultParams.icon }}"></i>
+										<i class="{{ type.defaultParams.icon }}"></i>test
 									{% endif %}
 								{% endfor %}
 								{% if level2.type == "page" %}
@@ -116,10 +116,10 @@
 									<details role="list">
 										<summary aria-haspopup="listbox">{{ i18n.add }}</summary>
 										<ul>
-											{% for type in blobTypes %}
-												{% if type.defaultParams.scope in ["pageElement"] %}
+											{% for blobType in defaultBlobTypes %}
+												{% if blobType.defaultParams.scope in ["pageElement"] %}
 												<li>
-													<a href="{{ ABSPATH }}/admin/create/?parent={{ level2.id }}&type={{ type.key }}&callback={{ action }}"><i class="{{ type.defaultParams.icon }}"></i> {{ i18n._modules[type.key].name ?? type.defaultParams.name }}</a>
+													<a href="{{ ABSPATH }}/admin/create/{{ blobType.key }}?parent={{ level2.id }}&callback={{ action }}"><i class="{{ blobType.defaultParams.icon }}"></i> {{ i18n._modules[blobType.key].name ?? blobType.defaultParams.name }}</a>
 												</li>
 												{% endif %}
 											{% endfor %}
@@ -160,6 +160,7 @@
 
 <dialog id="modal-delete">
 	<input type="hidden" name="elementToDelete" id="elementToDelete" value="" />
+	<input type="hidden" name="elementToDeleteType" id="elementToDeleteType" value="" />
 	<article>
 	  
 	  <h3 id="deleteModalTitle">{{ i18n.moveElement }} #<span id="elementToDeleteLabel"></span> {{ i18n.toRecycleBin }} ?</h3>
@@ -191,8 +192,9 @@
 	const deleteBlob = async (event) => {
 
 		try{
-			const id = parseInt(document.getElementById("elementToDelete").value)
-			const deleteBlob = await fetch(`{{ ABSPATH }}/blob/${id}/delete/`, {method: 'GET'})
+			const id = parseInt(document.getElementById("elementToDelete").value);
+			const type = document.getElementById("elementToDeleteType").value;
+			const deleteBlob = await fetch(`{{ ABSPATH }}/${type}/${id}/delete/`, {method: 'GET'})
 
 			if (deleteBlob) {
 				document.getElementById(`sitemap-id-${id}`).remove();

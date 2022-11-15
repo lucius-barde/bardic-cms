@@ -67,7 +67,7 @@
 			<!--<td>{{ blob.edited }}</td>-->
 			<td>{{ blob.lang }}</td> 
 			<td>{{ blob.translation_of }}</td>
-			<td class="options"><a href="{{ ABSPATH }}/admin/{{ blob.id }}/edit/?callback=admin">{{ i18n.edit }}</a>&nbsp;&nbsp;<a href="{{ ABSPATH }}/blob/{{ blob.id }}/delete/?callback={{ action }}">{{ i18n.delete }}</a></td>
+			<td class="options"><a href="{{ ABSPATH }}/admin/{{ blob.id }}/edit/?callback=admin">{{ i18n.edit }}</a>&nbsp;&nbsp;<a href="{{ ABSPATH }}/{{ blob.type }}/{{ blob.id }}/delete/?callback={{ action }}">{{ i18n.delete }}</a></td>
 			</tr>
 			{% endfor %}
 		</tbody>

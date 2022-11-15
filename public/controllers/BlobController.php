@@ -37,7 +37,7 @@ $app->post('/{type:[a-z]+}/create[/]', function (Request $q, Response $r, array 
 	
 	return $r->withStatus($create['statusCode'])->withJson($create);
 	
-})->setName('addBlob');
+})->setName('createBlob');
 
 
 

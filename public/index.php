@@ -105,10 +105,6 @@ $container['viewAdmin'] = function ($container) {
 
 require_once 'classes/Admin.php';
 require_once 'classes/Blob.php';
-require_once 'classes/Block.php';
-require_once 'classes/CSV.php';
-require_once 'classes/Form.php';
-require_once 'classes/Gallery.php';
 require_once 'classes/Media.php';
 require_once 'classes/Page.php';
 require_once 'classes/Validator.php';
@@ -117,11 +113,7 @@ require_once 'classes/Validator.php';
 /********* Controllers *********/
 
 require_once 'controllers/AdminController.php';
-require_once 'controllers/ArticleController.php';
 require_once 'controllers/BlobController.php';
-require_once 'controllers/BlogController.php';
-require_once 'controllers/CSVController.php';
-require_once 'controllers/FormController.php';
 require_once 'controllers/MediaController.php';
 require_once 'controllers/PageController.php';
 
