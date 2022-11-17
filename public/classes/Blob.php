@@ -231,8 +231,10 @@ class Blob{
 	public function setBlobStatus($id,$s){
   		if(!empty($id)){
 	  		$sql = $this->db->prepare('UPDATE '.TBL.' SET status = :s WHERE id = :id OR parent = :id;');
+
 	  		$sql->execute([':s' => $s, ':id' => $id]);
-	  		if(!$sql) return ['status'=>'error','statusCode'=>500,'statusText'=>'set_blob_status_error'];
+			if(!$sql)  return ['status'=>'error','statusCode'=>400,'statusText'=>'set_blob_status_error_bad_request'];
+	  		if($sql->rowCount() == 0) return ['status'=>'error','statusCode'=>404,'statusText'=>'set_blob_status_error_blob_doesnt_exist'];
 	  		return ['status'=>'success','statusCode'=>200,'statusText'=>'set_blob_status_success'];
   		}
   		return false;

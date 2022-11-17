@@ -76,7 +76,7 @@ $app->get('/{type:[a-z]+}/{id:[0-9]+}/delete[/]', function (Request $q, Response
 	}
 	else{
 		$delete = $blobModel->setBlobStatus($id,'-1');
-		if(!$delete){return $r->withStatus(500)->withJson(['status'=>'error','statusText'=>'move_to_trash_error']);}
+		if($delete['status'] == "error"){return $r->withStatus(500)->withJson(['status'=>'error','statusText'=>$delete['statusText']]);}
 		$statusText = 'move_to_trash_success';
 	}
 
