@@ -59,7 +59,7 @@ CREATE TABLE `opcmsdev` (
   `type` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'paragraph',
   `url` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(128) COLLATE utf8mb4_unicode_ci NULL,
-  `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `content` text COLLATE utf8mb4_unicode_ci NULL,
   `parent` int(11) NOT NULL,
   `status` tinyint(4) NOT NULL,
   `author` int(11) NOT NULL,

@@ -73,7 +73,8 @@ class MetalArch{
 			// #ID of band_info tag
 			$bandInfo = $this->elementToObj($domHandler->getElementById('band_info'));
 			if($bandInfo['children'][0]['class'] == "band_name"){
-				$bandJSON['bandName'] = $bandInfo['children'][0]['children'][0]['html'];
+				//$bandJSON['bandName'] = $bandInfo['children'][0]['children'][0]['html'];
+				$bandJSON['name'] = $bandInfo['children'][0]['children'][0]['html'];
 			}
 			
 			
@@ -86,7 +87,7 @@ class MetalArch{
 					
 					//country of origin
 					if($bandStatsLeft[$key-1]['html'] == 'Country of origin:'){
-						$bandJSON['countryOfOrigin'] = $this->implodeHTML($stat['html']); 
+						$bandJSON['params']['countryOfOrigin'] = $this->implodeHTML($stat['html']); 
 					}
 					//location
 					if($bandStatsLeft[$key-1]['html'] == 'Location:'){
@@ -96,17 +97,17 @@ class MetalArch{
 						foreach($locationArr as $locationKey => $aLocation){
 							$locationArr[$locationKey] = str_replace('N/A','',$aLocation);
 						}
-						$bandJSON['location'] = trim($locationArr[0]);
-						$bandJSON['location2'] = trim($locationArr[1]);
-						$bandJSON['location3'] = trim($locationArr[2]);
+						$bandJSON['params']['location'] = trim($locationArr[0]);
+						$bandJSON['params']['location2'] = trim($locationArr[1]);
+						$bandJSON['params']['location3'] = trim($locationArr[2]);
 					}
 					//status
 					if($bandStatsLeft[$key-1]['html'] == 'Status:'){
-						$bandJSON['status'] = $this->implodeHTML($stat['html']); 
+						$bandJSON['params']['status'] = $this->implodeHTML($stat['html']); 
 					}
 					//formed in
 					if($bandStatsLeft[$key-1]['html'] == 'Formed in:'){
-						$bandJSON['formedIn'] = $this->implodeHTML($stat['html']); 
+						$bandJSON['params']['formedIn'] = $this->implodeHTML($stat['html']); 
 					}
 					
 				}
@@ -117,19 +118,19 @@ class MetalArch{
 				
 					//genre
 					if($bandStatsRight[$key-1]['html'] == 'Genre:'){
-						$bandJSON['genre'] = $this->implodeHTML($stat['html']); 
+						$bandJSON['params']['genre'] = $this->implodeHTML($stat['html']); 
 					}
 					//lyricalThemes
 					if($bandStatsRight[$key-1]['html'] == 'Lyrical themes:'){
-						$bandJSON['lyricalThemes'] = $this->implodeHTML($stat['html']); 
+						$bandJSON['params']['lyricalThemes'] = $this->implodeHTML($stat['html']); 
 					}
 					//lastLabel
 					if($bandStatsRight[$key-1]['html'] == 'Last label:'){
-						$bandJSON['lastLabel'] = $this->implodeHTML($stat['html']); 
+						$bandJSON['params']['lastLabel'] = $this->implodeHTML($stat['html']); 
 					}
 					//currentLabel
 					if($bandStatsRight[$key-1]['html'] == 'Current label:'){
-						$bandJSON['currentLabel'] = $this->implodeHTML($stat['html']); 
+						$bandJSON['params']['currentLabel'] = $this->implodeHTML($stat['html']); 
 					}
 					
 				}
@@ -138,7 +139,7 @@ class MetalArch{
 				foreach($bandStatsLower as $key => $stat){
 					//yearsActive
 					if($bandStatsLower[$key-1]['html'] == 'Years active:'){
-						$bandJSON['yearsActive'] = $this->implodeHTML($stat['html']); 
+						$bandJSON['params']['yearsActive'] = $this->implodeHTML($stat['html']); 
 					}
 				}
 				
@@ -147,14 +148,19 @@ class MetalArch{
 			// #ID of logo tag
 			$bandLogo = $this->elementToObj($domHandler->getElementById('logo'));
 			if(!!$bandLogo['href']){
-				$bandJSON['logo'] = $bandLogo['href'];
+				$bandJSON['params']['logo'] = $bandLogo['href'];
 			}
 			
 			// #ID of photo tag
 			$bandPhoto = $this->elementToObj($domHandler->getElementById('photo'));
 			if(!!$bandPhoto['href']){
-				$bandJSON['photo'] = $bandPhoto['href'];
+				$bandJSON['params']['photo'] = $bandPhoto['href'];
 			}
+
+            //Unused mandatory OPCMS Fields
+            $bandJSON['parent'] = 0;
+            $bandJSON['status'] = 1;
+            $bandJSON['lang'] = "en";
 			
 	
 		// END parse html
