@@ -103,20 +103,27 @@ $container['viewAdmin'] = function ($container) {
 
 /********* Models **********/
 
+//Core models
 require_once 'classes/Admin.php';
 require_once 'classes/Blob.php';
 require_once 'classes/Media.php';
 require_once 'classes/Page.php';
 require_once 'classes/Validator.php';
 
+//Custom models
+require_once 'classes/MetalArch.php';
+
 
 /********* Controllers *********/
 
+//Core controllers
 require_once 'controllers/AdminController.php';
 require_once 'controllers/BlobController.php';
 require_once 'controllers/MediaController.php';
 require_once 'controllers/PageController.php';
 
+//Custom controllers
+require_once 'controllers/MetalArchController.php';
 
 
 /* Run App */
