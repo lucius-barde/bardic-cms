@@ -208,8 +208,8 @@ class Validator{
 			
 			
 			//forbidden framework URLs
-			$apiModel = new API($this->db);
-			$checkRoutes = $apiModel->getAllRoutes();
+			$adminModel = new Admin($this->db);
+			$checkRoutes = $adminModel->getAllRoutes();
 			if(in_array('/'.$s.'[/] GET', $checkRoutes)){
 				return false;
 			}
@@ -233,6 +233,7 @@ class Validator{
 		$string = $this->replaceAccents($string);
   		return preg_replace('/[^A-Za-z0-9\-_.]/', '', $string); // Removes special chars.
 	}
+
 
 	private function replaceAccents($s){
 		
