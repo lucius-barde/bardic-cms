@@ -7,7 +7,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 $app->get('/topiosearch/hsuter[/]', function (Request $q, Response $r, array $args) {
 	
 	$validate = new Validator($this->db);
-	$term = $validate->asString($_GET['term']);
+	$term = $validate->toFileName($_GET['term']);
     $term = ucfirst($term);
 	$cachefile = ABSDIR.'/cache/topiosearch/'.$term[0].'/topiosearch--hsuternames--'.$term.'.json';
 	
@@ -89,7 +89,7 @@ $app->get('/topiosearch/hsuter[/]', function (Request $q, Response $r, array $ar
 $app->get('/topiosearch/hsuternames[/]', function (Request $q, Response $r, array $args) {
 	
 	$validate = new Validator($this->db);
-	$term = $validate->asString($_GET['term']);
+	$term = $validate->toFileName($_GET['term']);
     $term = ucfirst($term);
 	
     $cachefile = ABSDIR.'/cache/topiosearch/'.$term[0].'/topiosearch--hsuternames--'.$term.'.json';
@@ -234,7 +234,12 @@ $app->get('/topiosearch/hsuternames[/]', function (Request $q, Response $r, arra
 $app->get('/topiosearch/topio[/]', function (Request $q, Response $r, array $args) {
 	
 	$validate = new Validator($this->db);
-	$term = $validate->asString($_GET['term']);
+   
+    $keepAccents = true;
+	$term = $validate->toFileName($_GET['term'],$keepAccents);
+    unset($keepAccents);
+
+    $term = str_replace('_', ' ', $term);
     $term = ucfirst($term);
     $cachefile = ABSDIR.'/cache/topiosearch/'.$term[0].'/topiosearch--topio--'.$term.'.json';
     if(file_exists($cachefile)){
@@ -267,7 +272,7 @@ $app->get('/topiosearch/topio[/]', function (Request $q, Response $r, array $arg
     if($termJSON['status'] == "error"){ 
         return $r->withStatus(404)->withJson(['status'=>'error','url'=>$url,'statusText'=>$termJSON['statusText']]);
     }elseif(!$termJSON){
-        return $r->withStatus(404)->withJson(['status'=>'error', 'url'=>$url,'statusText'=>'This keyword doesn\'t match with any word in the database']);
+        return $r->withStatus(404)->withJson(['status'=>'error', 'url'=>$url, 'term'=>$term, 'statusText'=>'This keyword doesn\'t match with any word in the database']);
     }else{
 
         $urlForApi = 'topiosearch--topio--';

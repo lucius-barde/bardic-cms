@@ -124,10 +124,6 @@ class TopioSearch{
 			$domHandler->loadHTML($html);
 			$xpath = new DomXPath($domHandler); 
 
-            $term = str_replace('%20', ' ', $term);
-            $term = html_entity_decode($term);
-            $term = strtolower($term);
-			
 
 			$elements = $xpath->query('//div[@id="contenu"]//table//td');
 			if(!$elements->length or $elements->length == 0){
@@ -147,10 +143,10 @@ class TopioSearch{
 
 
 			foreach($table as $key => $td){
-				if($validate->asURL(strtolower($td['html'])) == $term){
+				if($td['html'] == $term){
 					$output['params']['key'] = $key;
 					$output['params']['term'] = $td['html'];
-					$output['params']['meta'] = ['alt'=>'','type'=>''];
+					$output['params']['meta'] = ['alt'=>null,'type'=>null];
                     if(!!$tmpElement[$key+1]){
                         $output['params']['definition'] = $this->getInnerHTML($tmpElement[$key+1]);
                     }else{

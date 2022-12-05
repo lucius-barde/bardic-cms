@@ -228,10 +228,14 @@ class Validator{
 			return false;
 	}
 	
-	function toFileName($string){
+	function toFileName($string,$keepAccents = false){
 		$string = str_replace(' ', '_', $string); // Replaces all spaces with underscores.
-		$string = $this->replaceAccents($string);
-  		return preg_replace('/[^A-Za-z0-9\-_.]/', '', $string); // Removes special chars.
+		if($keepAccents == false){
+			$string = $this->replaceAccents($string);
+			return preg_replace('/[^A-Za-z0-9\-_.]/', '', $string); // Removes special chars.
+		}else{
+			return str_replace(['#','%','&','{','}','\\','$','!',"'",'"',':','@','<','>','*','?','/','+','`','|','='],'',$string); // Removes special chars.
+		}
 	}
 
 
