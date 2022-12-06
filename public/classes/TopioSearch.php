@@ -74,17 +74,8 @@ class TopioSearch{
             $term = html_entity_decode($term);
             $term = strtolower($term);
 			
-			/*if(str_contains($term,' ')){
-				$termArr = explode(' ', $term);
-				foreach($termArr as $term){
-					$containsArr[] = 'contains(@name, "'.$term.'")';
-				}
-				$contains = implode(' and ', $containsArr);
-				var_dump($contains);
-				$elements = $xpath->query('//a['.$contains.']');
-			} else{*/
-				$elements = $xpath->query('//a[contains(@name, "'.$term.'")]');
-			/*}*/
+			$elements = $xpath->query('//a[contains(@name, "'.$term.'")]');
+			
 
             foreach ($elements as $key => $a) { //class domNode ?
 				$dt = $a->parentNode;

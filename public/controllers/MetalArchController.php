@@ -76,6 +76,7 @@ $app->get('/metalarch/getBand/{id}[/]', function (Request $q, Response $r, array
 		}
 		
 		$bandJSON['edited'] = time();
+		$bandJSON['params']['copyright'] = '&copy; <a href="https://www.metal-archives.com">Metal-Archives.com</a>';
 		
 		ksort($bandJSON);
 		ksort($bandJSON['params']);
