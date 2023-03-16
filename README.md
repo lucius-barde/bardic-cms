@@ -1,6 +1,10 @@
 # bardic-cms
  
-Bardic CMS (formerly OppidumCMS)- Mini content management system focused on API functionalities, and can serve as a backend for both website and webapp frontend. Made by Lucius Barde (www.bardic.space)
+Bardic CMS (formerly OppidumCMS) is a mini content management system focused on API functionalities, and can serve as a backend for both website and webapp frontend.
+
+By default, Bardic CMS  can display ANY content publicly in JSON format, but the basic parameters to allow a quick creation of custom content types, with a hierarchy between those types (i.e. pages containing paragraphs etc.) is available in the CMS.
+
+Made by Lucius Barde (www.bardic.space)
 
 ## Requirements
 - A web server, preferably a Linux - Apache - MariaDB - PHP stack.
@@ -17,7 +21,7 @@ Bardic CMS (formerly OppidumCMS)- Mini content management system focused on API 
 6. setup your own configuration in config.php. Change the default admin login and password to your own. If using Docker activate the 3 possible URLs for MySQL.
 7. if you need to use the uploading tool available in the admin, create an 'uploads' folder in /public and allow write permissions to your webserver.
 8. Done ! You've just set up your Bardic CMS site. The API should return this: `['status'=>'default_home_page','statusText'=>'It works !']`.
-9. Optionally activate the frontend and create a home page. Check the rendering mode in PageController, and activate the JSON or frontend rendering depending on your needs. There are two places to check: at the bottom of the subpage route, and at the bottom of the homepage route. Then log into the website at /admin URL, and create a new page with the same URL as the $site['params']['homelink'] value in your config file, by default this URL is "home".
+9. Optionally activate the frontend and create a home page. C^heck the rendering mode in PageController, and activate the JSON or frontend rendering depending on your needs. There are two places to check: at the bottom of the subpage route, and at the bottom of the homepage route. Then log into the website at /admin URL, and create a new page with the same URL as the $site['params']['homelink'] value in your config file, by default this URL is "home".
 
 
 ## Single-table
@@ -85,6 +89,8 @@ Renders admin backend pages. All functions require SESSION.
 - adminDashboard /admin/dashboard/{page}: renders adminDashboard list with pagination.
 - adminDashboardByType /admin/dashboard/type/{type}/{page}: renders adminDashboard list from a single object type with pagination.
 - adminEdit /admin/{id}/edit: renders edit form with the action of object edition.
+- adminLogin /admin/login: login form and login URL. Use credentials set in $config['user'] in config.php to log in.
+- adminLogout /admin/logout: logout URL.
 - adminRecycle: /admin/recycle: renders admin recycle bin list.
 - adminSitemap: /admin/sitemap: renders admin site map view. Allows an optional GET parameter langFilter to filter by language.
 - adminUploads: /admin/uploads/{subdir}: renders the uploads manager.
@@ -118,10 +124,8 @@ In former OppidumCMS it handled all /blob routes, but in Bardic CMS they have be
 	- int $translation_of
 	- json $params
 	- SESSION
+- apiGetBlob /{type}/{id} : Dispays blob {id} as JSON. Please note that by default all content is accessible publicly through this function. If your API contains non-public content, you might want to disable it.
 
-
-===== WORK IN PROGRESS - WHAT COMES AFTER THIS LINE IS STILL THE OLD OPPIDUMCMS DOC¨ AND HASN'T YET BEEN UPDATED FOR BARDIC CMS =====
-	
 
 ### MediaController
 - mediaFileUpload /media/fileUpload (POST): Retrieves form data with uploaded files, moves them in the /uploads structure, and returns a JSON status. Requires SESSION.
@@ -134,10 +138,22 @@ In former OppidumCMS it handled all /blob routes, but in Bardic CMS they have be
     - SESSION
     - src (via url): the folder name
     - callback (via GET): the callback folder in /uploads
+- mediaMoveTo /media/moveTo (POST): Moves a media to a sub directory. Requires:
+	- SESSION
+	- from: The source file
+	- to: The destination
+	- subdir: The subdirectory
+- mediaRefreshFolderView: /media/refreshFolderView (POST): Refreshes the current folder view, after an asynchronous operation, and generate thumbnails for new images. Requires:
+	- dir: The folder
+	- (Requirement of SESSION is not active for an unknown reason, maybe because we want to be able to access a folder content publicly at some point)
 
 ### PageController
+Contains the routes for the website's public pages. You can configure on PageController's two routes whether you want a frontend or JSON rendering for pages. (Use JSON if you strictly want to access your pages through an external app, for example a Vue.js app)
+
 - homePage / : Renders website's public home page.
-- page-{id} /{url} : PageController contains the url rewriting system that generate a route for each public page. Oppidum CMS allows a maxium of 3 page sub-levels.
+- page-{id} /{url} : PageController contains the url rewriting system that generate a route for each public page.
+
+
 
 
 ## Classes (Models)
@@ -146,7 +162,7 @@ In order to use a class Xyz, it must be constructed as:
 <?php $xyzModel = new Xyz($container->db);?> with the optional database parameter.
 
 ### Admin model
-Admin / backend operations.
+Operations for admin pages.
 
 - canEdit: check if SESSION user is allowed to edit the blob $id. Requires:
 	1. int $id: id of the blob
@@ -159,6 +175,8 @@ Admin / backend operations.
 	2. array $args:
 		 - bool $admin: add to fetched data an "admin" fields containing the "canEdit" and "canDelete" statuses for elements.
 		 
+- getPageUrl: returns the complete URL for page $id, including parents if $id is a subpage. It can also return the URIs for non-page elements.
+		 
 - getSitemap: generates the root of the sitemap and begins the getSitemapTree loop. Requires:
 	1. array $args:
 		- bool $admin: add to fetched data an "admin" fields containing the "canEdit" and "canDelete" statuses for elements.
@@ -168,17 +186,21 @@ Admin / backend operations.
 	2. array $args:
 		- bool $admin: add to fetched data an "admin" fields containing the "canEdit" and "canDelete" statuses for elements.
 		- param $langFilter: allows a WHERE clause to filter by lang.
+		
+- getTranslations: get the complete list of translated sentences for a specific language $lang. The function returns an array containing the default Bardic CMS sentences and the sentences for each custom module.
 
-### API Model
-API operations
+- login: Logs into the website. Uses the $config['user'] login data from config.php
 
-- getAllRoutes: returns an array of all existing routes in the site. Used for debug purposes, should only be used as admin.
+- getAllRoutes: Gets a complete list of existing SlimPHP routes of the app. Should be used for debugging purposes in case of fatal error (like duplicate route).
+
 
 ### Blob Model
 Operations related to any object, used mostly by the admin CRUD editor.
 
 - addBlob: adds a new blob of any type. Requires:
 	1. array $post: data corresponding to database fields.
+
+- cleanOrderValues: useful legacy function which resets all order values to even numbers. The old OppidumCMS used a system to manage the order of elements in pages, where every element has a $blob['params']['order'] which is an even number, and any new element that is added before or after an element with order "x" should get the odd number "x - 1" or "x + 1", and then everything is re-numerated to even numbers.
 
 - deleteBlob: deletes a blob. Requires:
 	1. int $id: the ID of the blob
@@ -192,18 +214,18 @@ Operations related to any object, used mostly by the admin CRUD editor.
 	- param $orderby: order by specific field
 	- param $order: ASC or DESC
 	- int $parent: get blobs having this specific parent
-	- param $searchTerm: get blobs having this term in ID or name or content or params. Used in admin dashboard.
+	- param $searchTerm:^ get blobs having this term in ID or name or content or params. Used in admin dashboard.
 	- bool $onlyCount: only get the amount of blobs selected, not the content. Used for pagination, for example.
 	- int $limit: limit the result to X blobs.
 	
-
-- getAuthor: get a blob's author ID. Requires:
-    1. int $id: the blob's ID.
 
 - getBlob: get a specific blob by ID. Requires:
     1. int $id: the blob's ID.
     2. array $args:
 	- bool $rawParams: if false (by default): decode JSON params as an array. If true, get the raw JSON data instead.
+
+- getBlobParent: returns the parent of blob as an object. Requires:
+     1. int $id: the blob's ID.
 	
 - getBlobStatus: get a blob's status. Requires:
      1. int $id: the blob's ID.
@@ -212,29 +234,31 @@ Operations related to any object, used mostly by the admin CRUD editor.
      1. int $id: the blob's ID.
 
 - getDefaultParams: get the list of default params for a specific blob's type. This data is stored in /modules/{{type}}.json. Requires:
-     1. param $type: the requested type.
+     1. param $type: the requested blob type.
 
-- getSiteProperties: get the blob of type "site", which should be unique. This blob, generally with database ID = #1,  contains the site parameters. Requires no params.
-    
-- isTheAuthor: check if connected user is the author of a blob. Requires:
-    1. int $id: the blob's ID.
+- getSiteProperties: gets $config['site'] from config.php.
     
 - setBlobStatus: changes the status of a blob. Requires:
     1. int $id: the blob's ID.
-    2. int $status. the blob's new status.
+    2. int $status. the blob's new status. By default Bardic CMS uses status 1 = online, 0 = offline (draft), -1 = deleted.
 
 - updateBlob: updates a blob's entry. All fields are rewritten, so it requires everything. Params must be given as an array, and are encoded as JSON in this function. Requires:
     1. int $id: the blob's ID.
     2. array $post: data corresponding to database fields.
 
+
+	
 ### Media model
-Media operations
+Media operations.
 
 - generateThumbnail: creates, from a given absdir of image, a thumbnail image with uploaded image's name plus "-WxH". Returns the thumbnail's image. No error handling, assuming that the uploads dir is writeable. Requires:
 	1. string $img: image path in the absdir (absolute directory) format.
 	2. int $twidth: thumbnail width in pixels, default 300
 	3. int $theight: thumbnail height in pixels, default 300
 	4. int $quality: for jpeg images, thumbnail quality (0-100), default 90
+
+- getMedia: get the media list for a directory inside /uploads. Can be used synchronously or in AJAX. Requires:
+- 1. string $subdir: the requested directory relative to the /uploads folder, should start with '/')
 
 - moveMedia: moves a media to a subfolder or to the parent folder. Requires:
 	1. current path of the file relative to /uploads $from
@@ -274,15 +298,8 @@ Input validation operations
 	1. string $d: a date
 	2. string $lang: a language for the format (only 'fr' is implemented yet).
 
-- showImage: displays an image from an image blob. Requires:
-	1. blob $blob: an image blob having the existing params:
-		- string $blob.params.src: source to the actual file
-		- string $blob.params.link: the <a> link that will wrap the <img />
-		- string $blob.params.link_target: the link target (i.e. _blank)
-		- bool $blob.params.link_self: if true, the <a> link will open the image itself in browser.
-		- string $class: the class parameter of the <img />
 
-- showResponsiveImage: triggers generateThumbnail() and displays an image from an image blob. Can be further developed into a srcset responsive system. Requires:
+- showResponsiveImage: triggers generateThumbnail() and displays an image from an image source relative to /uploads. Can be further developed into a srcset responsive system. Requires:
 	1. blob $blob: an image blob having the existing params:
 		- string $blob.params.src: source to the actual file
 		- string $blob.params.link: the <a> link that will wrap the <img />
@@ -294,10 +311,12 @@ Input validation operations
 		- int $height: thumbnail height, default 150,
 		- int $quality: if jpeg, thumbnail quality (0-100), default 80
 		
-- showThumbnail: (Might be obsolete, uses the "media" object)
 
-- asEmail: validates $s as email with a regexp. Requires:
+- asEmail: validates $s as email, using a regexp. Requires:
 	1. string $s: a string that should be a valid email.
+	
+- asLink: validates $s as a hypertext link, using a regexp. Requires:
+	1. string $s: a string that should be a valid link.
 	
 - asJson: returns json_decode if $s is valid JSON, false if invalid. Avoid saving invalid params in database. Requires:
 	1. string $s: a string that should be valid JSON.
@@ -317,10 +336,10 @@ Input validation operations
 - toFileName: for basic file handling with PHP: replaces all spaces with underscores and removes all accents.
 	1. string $string: any text made of latin characters.
 	
-- replaceAccents: replaces accented latin characters with non-accented counterparts. Used by Validator::toFileName.
+- replaceAccents (PRIVATE): replaces accented latin characters with non-accented counterparts. Used by Validator::toFileName.
 	1. string $s: any text made of latin characters.
 
-- parseForm: used for custom forms: replaces (with a regex) the following tags to their HTML counterparts. For example in your form twig template, you can show the fields with {{ validate.parseForm(element.content) }} if element.content is not empty, and display default fields otherwise. This function doesn't render the submit button, default hidden fields, nor any other form tags, those should still be added manually.
+- parseForm: useful legacy function for custom forms: replaces (with a regex) the following tags to their HTML counterparts. For example in your form twig template, you can show the fields with {{ validate.parseForm(element.content) }} if element.content is not empty, and display default fields otherwise. This function doesn't render the submit button, default hidden fields, nor any other form tags, those should still be added manually.
 {input name "Label"} => input type text
 {email name "Label"} => input type email
 {text(area) name "Label"} => textarea
@@ -347,7 +366,7 @@ This might be removed and replaced with a Twig extension.
 	1. array $array: any array of data of any depth.
 	2. functionName $asTextType: an existing function of Validator to be executed on all elements (e.g. "asString", "asParam").
 	
-- showBlobLink: generates a link to an internal element.
+- showBlobLink: generates a link to an internal element. Is used in the custom markdown for paragraphs, allowing to generate links to internal pages based on their ID.
 	1.  int $id : the element's ID.
 	2.  string $linkText: the text of the link
 	3.  param $params.target: optional target parameter i.e. "_blank"
@@ -378,9 +397,11 @@ In former OppidumCMS there used to be many more content modules like contact for
 
 	
 ## Base template "pico"
-Bardic CMS's base template is a minimalist display of all the parameters, and is mostly suitable for development or debugging purposes. You should consider creating your own new template.
+Bardic CMS's base template is a minimalist display of all the parameters, and is mostly suitable for development or debugging purposes. You should consider creating your own template, or use a javascript framework to display data through API requests. Pico template uses Pico.css.
 
-### standard.html.twig ###
+Former OppidumCMS themes used similar templates as what is described here.
+
+### Base view: standard.html.twig ###
 This file is the base template, from <html> to </html>, called on every page. The dynamic content is provided by the various Controllers who give these parameters to the Twig template engine. The main parameters are:
 - action: a string that requires which partial templates will be loaded. It is used for admin and user login pages. If no action is provided, then the basic frontend template will likely be loaded.
 - object session: contains the $_SESSION data.
@@ -392,19 +413,17 @@ This file is the base template, from <html> to </html>, called on every page. Th
 - object sitemap: contains the whole site hierarchy, can be used to show the main navigation menu.
 - bool isHome: true if is home page
 
-### headlinks.html.twig and bodylinks.html.twig ###
-These two files contain the link, meta, or script tags that must be present either in header or footer. Put your CSS and JS here.
-
-### Admin views of base template ###
-All the admin-{...}.html.twig and user-{...}.html.twig are called by standard.html.twig, instead of the frontend template, depending on the action. 
+### Admin views  ###
+All the admin-{...}.html.twig, and signin-form.html.twig, are called by standard.html.twig instead of the frontend template, if the requested action is an admin one. 
 
 ### Module views ###
-Bardic CMS uses templates named after the modules that are "pageElement"s , like paragraph.html.twig for paragraphs,  image.html.twig for image blobs, etc.
-The standard.html.twig calls the different module templates when necessary, but if you create new modules you must add manually your new blob type in the page content's inclusion list. The default template plainly displays the blob.name and the blob.content for unknown blob types or blob types not added in the inclusion list.
+Bardic CMS uses templates named after the modules that are "pageElement"s. Currently the only core module that is a page element is paragraph.html.twig.
 
-## Admin template
-OpCMS can use a separate admin theme, or the same theme as frontend. By default no admin theme is provided and admin pages are on the same theme as the frontend, but activating $container->viewAdmin instead of $container->view can activate the admin theme renderer.
+The standard.html.twig calls the different module templates when necessary, but if you create new modules you must add manually your new blob type in the page content's included list, otherwise the default template plainly displays the blob.name and the blob.content for unknown blob types.
+
+## Separate admin template (not by default)
+Bardic CMS can use a separate admin theme, or the same theme as frontend. By default no admin theme is provided and admin pages are on the same theme as the frontend, but activating $container->viewAdmin instead of $container->view can activate the admin theme renderer.
 
 ## Others
 ### /public/external and /public/css folders:
-Contains external libraries used globally, independently from the theme. This should be cleaned and put in the frontend theme or admin theme.
+Contains external libraries used globally, independently from the theme. This should be cleaned and put inside the theme folder in the future.

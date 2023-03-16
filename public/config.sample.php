@@ -54,8 +54,8 @@ $config = [
 	//Site paths
 	'abspath'=>'http://localhost:8080',
 	'absdir'=>'/var/www/html',
-	'template_dir'=>'themes/pico', // also: themes/pico for a more lightweight theme
-	'template_admin_dir'=>'themes/pico' // also: themes/pico for a more lightweight theme
+	'template_dir'=>'themes/pico',
+	'template_admin_dir'=>'themes/pico'
 ];
 
 
@@ -73,7 +73,6 @@ CREATE TABLE `opcmsdev` (
   `content` text COLLATE utf8mb4_unicode_ci NULL,
   `parent` int(11) NOT NULL,
   `status` tinyint(4) NOT NULL,
-  `author` int(11) NOT NULL,
   `edited` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `lang` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'en',
   `translation_of` int(11) NULL,

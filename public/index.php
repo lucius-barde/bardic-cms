@@ -111,8 +111,7 @@ require_once 'classes/Page.php';
 require_once 'classes/Validator.php';
 
 //Custom models
-require_once 'classes/MetalArch.php';
-require_once 'classes/TopioSearch.php';
+//require_once 'classes/YourOwnClass.php';
 
 
 /********* Controllers *********/
@@ -124,8 +123,7 @@ require_once 'controllers/MediaController.php';
 require_once 'controllers/PageController.php';
 
 //Custom controllers
-require_once 'controllers/MetalArchController.php';
-require_once 'controllers/TopioSearchController.php';
+//require_once 'controllers/YourOwnClassController.php';
 
 
 /* Run App */

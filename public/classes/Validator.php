@@ -42,35 +42,6 @@ class Validator{
   	}
   	
 
-	function showImage($relsrc,$blobID = []){
-
-		
-		
-		$blobModel = new Blob($this->db);
-		$src = $relsrc;
-		$blob = $blobModel->getBlob($blobID);
-				
-		if($src){
-			$src = ABSPATH.'/uploads/'.$src;
-			
-			 
-			$img = ['','',''];
-				
-				if($blob['params']['link']){
-					$img[0] = '<a href="'.$blob['params']['link'].'" '.$blobParamsTarget.'>';
-					$img[2] = '</a>';
-				}elseif($blob['params']['link_self']){
-					$img[0] = '<a href="'.$src.'" '.$blobParamsTarget.'>';
-					$img[2] = '</a>';
-				}
-				
-				$img[1] = '<img id="image-'.$blob['id'].'" class="'.$blob['params']['class'].'" src="'.$src.'" alt="'.$blob['content'].'" title="'.$blob['name'].'" />';
-			
-			return implode($img);
-		}
-		return false;
-		
-	}
 	
 	function showResponsiveImage($relsrc, $args = []){
 		
@@ -109,61 +80,6 @@ class Validator{
 		
 	}
 	
-
-	
-	function showThumbnail($id,$w,$h,$args = []){
-		
-		$blobModel = new Blob($this->db);
-		$showTitle = $args['showTitle'] != "in_link" ? $args['showTitle'] : false;
-		$showDescription = !!$args['showDescription'];
-		$enableLinkImg = !!$args['enableLinkImg'];
-		$noLink = !!$args['noLink'];
-		
-		$sql = $this->db->query('SELECT id, name, url, content, value FROM '.TBL.' WHERE id = "'.$id.'" AND type = "media" LIMIT 1;');
-		$row = $sql->fetch();
-		$urlParts = explode('/',str_replace('//','/',$row['url']));
-		$urlParts[sizeof($urlParts)-1] = '_thumb/'.$w.'x'.$h.'/'.$urlParts[sizeof($urlParts)-1];
-		$thumbUrl = implode('/',$urlParts);
-		
-		if(!is_file(ABSDIR.$thumbUrl)){
-			$adminModel = new Admin($this->db);
-			$adminModel->generateThumbnail(ABSDIR.$row['url'],$w,$h);
-		}
-		
-		if($row){	
-			
-			$img = '';
-			$title = $this->parseMd($row['name'],false);
-			$showTitleInLink = $args['showTitle'] == "in_link" ? 'title="'.$title.'" ' : '';
-			
-			
-			if(!!$enableLinkImg):
-			$img = '<a '.$showTitleInLink.'class="link-img '.$args['class'].'" href="'. (!empty($row['content']) ? ABSPATH.str_replace('//','/',$blobModel->getURL($row['content'], $lang)) : ABSPATH.str_replace('//','/',$row['url'])).'">';
-			elseif(!$noLink):
-			$img = '<a '.$showTitleInLink.'class="link-img '.$args['class'].'" href="'. ABSPATH.str_replace('//','/',$row['url']).'">';
-			else:
-			$img = '';
-			endif;
-			
-				$img .= '<img class="media-thumb-'.$id.'" data-displaymode="'.$row['value'].'" src="'.ABSPATH.$thumbUrl.'" alt="'.$row['name'].'"/>';
-				if(in_array($showTitle,['h1','h2','h3','h4','h5','h6'])):
-					$img .= '<'.$showTitle.' class="show-image-title">'.$title.'</'.$showTitle.'>';
-				endif;
-				if($showDescription):
-					// not implemented yet
-				endif;
-				
-			if(!$noLink):
-				$img .= '</a>';
-			else:
-				$img .= '';
-			endif;
-			
-			return $img;
-		}
-		return false;
-	}
-
 
 	function asEmail($s){
 		 //supports TLD's up to 10 characters. Doesn't support special characters in domain names.

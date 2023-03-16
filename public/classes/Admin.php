@@ -210,7 +210,7 @@ class Admin{
 		return ['error'=>'user.warning.incorrectPasswordForUsername'];
   	}
   	
-  	function createUserBySignup($new){
+  	/*function createUserBySignup($new){
 		//$newLogin = $new['login'];
 		$newPassword = password_hash($new['password'],PASSWORD_BCRYPT);
 		$params = [
@@ -247,7 +247,7 @@ class Admin{
 			return $row;
 		}
 		return false;
-	}
+	}*/
 		
 	public function getAllRoutes(){
 		global $app;
