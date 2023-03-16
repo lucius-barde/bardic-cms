@@ -159,7 +159,7 @@ Contains the routes for the website's public pages. You can configure on PageCon
 ## Classes (Models)
 Classes contain methods called inside controllers. They are located in /public/classes.
 In order to use a class Xyz, it must be constructed as:
-<?php $xyzModel = new Xyz($container->db);?> with the optional database parameter.
+$xyzModel = new Xyz($container->db); with the optional database parameter.
 
 ### Admin model
 Operations for admin pages.
