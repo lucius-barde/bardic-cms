@@ -91,6 +91,7 @@ foreach($rewriters as $rewriter){
 				"validate" => $validate
 			];
 			
+			// CHOOSE FRONTEND OR JSON RENDERING HERE - 1/2 SUBPAGES
 			
 			//$r = $this->view->render($r, "standard.html.twig", $params); //display pages in frontend template
 			return $r->withJson($params); //display pages in JSON
@@ -141,10 +142,13 @@ $app->get('/', function(Request $q, Response $r, $args){
 			"type" => $blob['type'],
 			"validate" => $validate
 		];
+
+		// CHOOSE FRONTEND OR JSON RENDERING HERE - 2/2 - HOME PAGE
+
 		//$r = $this->view->render($r, "standard.html.twig", $params); //display front page in frontend template
 		return $r->withJson($params);  //display front page in JSON
 	else:
-		return $r->withStatus(404)->withJson(['status'=>'error','statusText'=>'404 - Page not found']);
+		return $r->withStatus(200)->withJson(['status'=>'default_home_page','statusText'=>'It works !']);
 	endif;  
 	
 })->setName('homePage');

@@ -34,17 +34,28 @@ $config = [
 		'v3_secret_key'=> "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe", //secret key (this one is a sandbox key, change with your own)
 	],
 
+	//Site properties
+	'site'=>[
+		'params'=>[
+			'default_language'=>'en',
+			'homelink'=>'home',
+			'languages'=>[
+				'en'=>'English'
+			]
+		]
+	],
+
 	//Admin login
 	'user'=>[
 		'login'=>'admin',
 		'password'=>'admin'
-	]
+	],
 
 	//Site paths
 	'abspath'=>'http://localhost:8080',
 	'absdir'=>'/var/www/html',
-	'template_dir'=>'themes/starter', // also: themes/pico for a more lightweight theme
-	'template_admin_dir'=>'themes/starter' // also: themes/pico for a more lightweight theme
+	'template_dir'=>'themes/pico', // also: themes/pico for a more lightweight theme
+	'template_admin_dir'=>'themes/pico' // also: themes/pico for a more lightweight theme
 ];
 
 

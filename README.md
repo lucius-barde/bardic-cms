@@ -1,54 +1,30 @@
-# opcms v3.0
+# bardic-cms
  
-OppidumCMS 3 - Special API Version
-
-The 3rd version of OppidumCMS is mainly focused on API functionalities, and can serve as a backend for both website and webapp frontend.
-
-OppidumCMS is developed by the one-man-team Lucius Arkay.
-
-
-
-**OppidumCMS features:**
-- Ultra-lightweight (including few dependencies)
-- Single-table
-- MVC architecture
-- Frontend engine with built-in URL rewriting
-- Multilingual ready
-- Works as a Web-Service (can be implemented in separate apps, like an API)
-- Polymorphic, generic objects: deploy custom modules within minutes
-- Both frontend and backend highly customizable (OppidumCMS is a canvas of a CMS)
-
-**Updates in version 3.0 compared to version 2.x**
-- As of 3.0, all object types can be accessed through an API endpoint. But only the object types which are activated (= .json file being present) in the modules folder can be accessible. By default this access is public, if you need fully private modules you can configure so in the .json description of the module (check "dummy.json" for an example).
-- As of 3.0, OpCMS doesn't require a 'site' and a 'user' entry in the database. Site ParamsThe admin panel can work with zero content in database.
-- As of 3.0, an object type can no longer be modified in admin.
-- In a purpose of simplification, the starter theme has been removed, and only the "pico" theme, which doesn't use any javascript, is used in the admin. The only exception being the admin/uploads page. If you need anything more dynamic, you can create a webapp in a modern JS framework and use the API to create your own custom admin pages.
-- "User" blob type was removed, as well as the "author" field and everything related to access level, since these functionalities were never used. OpCMS v3 focuses on simple API CRUD requests, and it relies now on minimal settings, which means a single superuser which can be configured in config.php. Multi user, or most probably API keys, might be added in the future.
-- In PageController.php you can now easily switch between a support for frontend (= PHP generates standard web pages) or JSON responses (= PHP serves data for web apps only)
+Bardic CMS (formerly OppidumCMS)- Mini content management system focused on API functionalities, and can serve as a backend for both website and webapp frontend. Made by Lucius Barde (www.bardic.space)
 
 ## Requirements
 - A web server, preferably a Linux - Apache - MariaDB - PHP stack.
-- Software packages: **git**, **composer**.
+- Software packages: **git**, **composer**, ***docker (optional)***.
 - Dependencies installed by composer: slim PHP core, Twig templating engine with some extensions, and PHPMailer.
 - Dependencies installed in code: Bootstrap, jQuery, Parsedown, and other modules in /external.
 
 ## Installation
-- `git clone https://bitbucket.org/cbwebdev/opcms2.git`
-- `composer install` in the public folder, to generate the public/vendor folder.
-- If using docker: run `docker-compose up`
-- copy config.sample.php to config.php
-- copy/paste the SQL table structure from config.php to PHPMyAdmin or Adminer
-- setup your own configuration in config.php
-- if you need to use the uploading tool available in the admin, create an 'uploads' folder in /public and allow write permissions to your webserver.
-- Done ! You set up your Oppidum CMS site.
-- (Optionally: check the rendering mode in PageController, and activate JSON or frontend depending on your needs)
+ 1. `git clone 'NEW URL OF BARDIC CMS - TODO'
+2. `composer install` in the public folder, to generate the public/vendor folder.
+3. If using docker: run `docker-compose up`
+4. copy config.sample.php to config.php
+5. copy/paste the SQL table structure from config.php to PHPMyAdmin or Adminer (if using Docker it's most likely running on localhost:5001)
+6. setup your own configuration in config.php. Change the default admin login and password to your own. If using Docker activate the 3 possible URLs for MySQL.
+7. if you need to use the uploading tool available in the admin, create an 'uploads' folder in /public and allow write permissions to your webserver.
+8. Done ! You've just set up your Bardic CMS site. The API should return this: `['status'=>'default_home_page','statusText'=>'It works !']`.
+9. Optionally activate the frontend and create a home page. Check the rendering mode in PageController, and activate the JSON or frontend rendering depending on your needs. There are two places to check: at the bottom of the subpage route, and at the bottom of the homepage route. Then log into the website at /admin URL, and create a new page with the same URL as the $site['params']['homelink'] value in your config file, by default this URL is "home".
 
 
 ## Single-table
-- OppidumCMS uses a single table and polymorphic objects (called "blobs") which uses the same fields, be it a page, a paragraph, a media, a user, a custom object, etc. In OppidumCMS the term BLOB stands for Blobby Long Object, in other words, a polymorphic object where any of its types uses the same basic fields ("params" being the array of additional fields).
+- Bardic CMS uses a single table and polymorphic objects (called "blobs") which uses the same fields, be it a page, a paragraph, a media, a user, a custom object, etc. In Bardic CMS the term BLOB stands for Blobby Long Object, in other words, a polymorphic object where any of its types uses the same basic fields ("params" being the array of additional fields).
 
 	- INT(11) id: unique identifier
-	- VARCHAR(32) type: object type (i.e. "page", "paragraph", "image", "littlepony" etc.)
+	- VARCHAR(32) type: any object type (i.e. "page", "paragraph", "image", "littlepony" etc.)
 	- VARCHAR(128) url: unique resource locator
 	- VARCHAR name: human-readable name for the object
 	- TEXT content: directly loaded content
@@ -62,15 +38,15 @@ OppidumCMS is developed by the one-man-team Lucius Arkay.
 ## config.php
 
 ### array $config
-- bool displayErrorDetails: ?
-- bool addContentLengthHeader: ?
+- bool displayErrorDetails: SlimPHP related config.
+- bool addContentLengthHeader: SlimPHP related config.
 - array db: database info
 	- string host: database host (e.g. "localhost")
 	- string user: database user (e.g. "root")
 	- string pass: database password
 	- string dbname: database name
 	- string tbl: opcmsdev
-- array site: site parameters (formerly the "site" entry in OpCMS 2)
+- array site: site parameters
 	- string name: Default site title (if frontend is active)
 	- string content: Default site meta description (if frontend is active)
 	- array params:
@@ -86,11 +62,10 @@ OppidumCMS is developed by the one-man-team Lucius Arkay.
 
 
 
-
 ## index.php
 
 ### MVC (model-view-controller)
-OppidumCMS uses a model-view-controller architecture based on Slim PHP's routing system.  The process is:
+Bardic CMS uses a model-view-controller architecture based on Slim PHP's routing system.  The process is:
 
 - The called URL will be executed by the controller which handles its route (i.e. AdminController handles all /admin pages, BlobController handles blob creation/update/etc., PageController handles the routes of the public pages, etc.)
 - The controller executes some code, retrieves some parameters, and pass those parameters either to the view renderer, or to the JSON renderer.
@@ -99,7 +74,7 @@ OppidumCMS uses a model-view-controller architecture based on Slim PHP's routing
 If you create custom models and controllers, please load them at the bottom of index.php.
 
 ## Controllers
-OppidumCMS is an optimized API motor with layers of frontend and backend views upon it.
+Bardic CMS is an optimized API motor with layers of frontend and backend views upon it.
 Controllers are located in /public/controllers
 
 ### AdminController
@@ -116,7 +91,7 @@ Renders admin backend pages. All functions require SESSION.
 
 
 ### BlobController
-Before V3 it handled all /blob routes, but they have been replaced by /{type} routes, where {type} is the current blob's type.
+In former OppidumCMS it handled all /blob routes, but in Bardic CMS they have been replaced by /{type} routes, where {type} is the current blob's type.
 
 - createBlob /{type}/create (POST): Creates a new blob from a formData, and returns JSON status or redirects to a callback URL if provided. Requires:
 	- param $callback: the callback URL
@@ -145,12 +120,8 @@ Before V3 it handled all /blob routes, but they have been replaced by /{type} ro
 	- SESSION
 
 
-===== WORK IN PROGRESS - WHAT COMES AFTER THIS LINE IS STILL V2 AND HASN'T YET BEEN UPDATED FOR V3 =====
+===== WORK IN PROGRESS - WHAT COMES AFTER THIS LINE IS STILL THE OLD OPPIDUMCMS DOC¨ AND HASN'T YET BEEN UPDATED FOR BARDIC CMS =====
 	
-
-### FormController
-- formSend /form/send (POST): Sends form. Requires:
-	- array $formData: a whole form data that will be transmitted to FormModel->sendForm. See Form Model for doc.
 
 ### MediaController
 - mediaFileUpload /media/fileUpload (POST): Retrieves form data with uploaded files, moves them in the /uploads structure, and returns a JSON status. Requires SESSION.
@@ -168,23 +139,6 @@ Before V3 it handled all /blob routes, but they have been replaced by /{type} ro
 - homePage / : Renders website's public home page.
 - page-{id} /{url} : PageController contains the url rewriting system that generate a route for each public page. Oppidum CMS allows a maxium of 3 page sub-levels.
 
-### UserController
-- userLogin /user/login: renders the login form
-- userPostLogin /user/login (POST): retrieves login form data, tries to login, and returns JSON status or redirects to a callback URL if provided. Requires:
-	- param $callback: the callback URL if login succeeded. If unset, returns the success message as a JSON status.
-	- bool $callbackIfError: if true, renders login form with the error messsage; if false, returns the error message as a JSON status.
-	- array $userAdmin:
-		- param $login: existing user login
-		- string $password: existing user password
-- userLogout /user/logout: destroys SESSION and returns JSON status. Callback to ABSPATH if GET.
-- userSignup /user/signup: renders the signup form
-- userPostSignup /user/signup (POST): retrieves signup form data, creates user and renders the signupValidate action, or re-renders signup form with errors if any. Requires:
-	- array $userAdmin:
-		- param $login: new user login
-		- param $email: new user email
-		- string $password: new user password
-		- string $password_confirm: new user password confirmation (identical test)
-	- SITE.allowUserSignup: user signup must be enabled in SITE.params in database.
 
 ## Classes (Models)
 Classes contain methods called inside controllers. They are located in /public/classes.
@@ -273,25 +227,6 @@ Operations related to any object, used mostly by the admin CRUD editor.
     1. int $id: the blob's ID.
     2. array $post: data corresponding to database fields.
 
-### Block model
-Block operations
-
-- getBlocks: get all the blocks of the website with their data. Usually it is used to send the block data to the page view and simply display all blocks on the template.
-- getBlockElements: used in getBlocks to get a block's data.
-- getBlockExternalData: a block can have an additional dataset from the website for various reasons, like dynamic content. This function retrieves the external data from the url: {{ABSPATH}}/ {{block.params.externalData}}.
-
-### Form model
-Form operations
-
-- sendForm: sends the form with PHPMailer and returns a status and statusText. Requires:
-	1. that the form has a "mailto" parameter 
-	2. that the config(.php) has a "phpmailer" "host", "user", and "pass".
-	3. array $post: a whole post data, containing at least:
-		- array $formData
-			- int $id: the form ID transmitted via an input type="hidden". Is used for the callback, sendForm() retrieves the parent page and redirects to it.
-			- string $name: Sender's name, will be used in the SetFrom
-			- email $email: Sender's email, will be used for the ReplyTo.
-
 ### Media model
 Media operations
 
@@ -328,9 +263,6 @@ Page operations
 	
 - getTranslations: returns the blobs which have a translation_of field equal to the given blob id. Used in language menus. Requires:
 	1. int $tr: the page's id equal to the translation group id.
-
-### User model
-User login and signup functions	
 
 ### Validator model
 Input validation operations
@@ -430,20 +362,9 @@ Modules have default params which are used in create and edit forms, they are in
 
 The list of parameters is documented in each one of the  /modules/{module].json files.
 
-Here are some of the default OppidumCMS modules (this list might be outdated):
+Here are of the default Bardic CMS modules:
 
-- **site:** Site blob is the website's root element, containing site-wide configuration. There should be max. 1 site blob per site.
-	- string homelink: the url field of the home page (must be set and changed manually)
-	- object languages: the active languages on the website in an object format, where the key is the 2-letter short language identifier, and the value is the human-readable name of the language. Example {"en":"English","fr":"Français"}
-	- string default_language: the 2-letter short language identifier for the default language (i.e. "en", "fr", "de", etc.)
-
-- **user:** User blobs handle login info and access rights for the website's users. A fresh install comes with one user called *admin*.
-	- int level: the access rights level: "3" is (super)admin privileges, "2" is moderator, "1" is contributor, and "0" is simple user with no editing rights. "-1" (-2,-3...) could be used to handle banned users with different banning reasons.
-	- the status field is used for validating or deleting users: "1" is active, "0" is pending (confirm e-mail etc.), and "-1" is for a user who deleted his own account.
-	
-TODO:  most of the user access rights and stuff are not yet developed.
-
-- **page:** Page blobs are used for displaying pages, and their URL field is automatically used for URL rewriting. OppidumCMS can handle a maximum sub-page depth of 3 levels.
+- **page:** Page blobs are used for displaying pages, and their URL field is automatically used for URL rewriting. Bardic CMS can handle a maximum sub-page depth of 3 levels.
 	- unsigned_int order: the numeric order in which pages come in the sitemap.
 	- string metaDescription: the <meta name="description" /> tag for search engines.
 	- the parent field should be the site blob's ID if a 1st level page, or another page's ID if a subpage.
@@ -453,49 +374,11 @@ TODO:  most of the user access rights and stuff are not yet developed.
 	- unsigned_int order: the numeric order in which the page content is shown.
 	- bool hideTitle: if "0" or false, the paragraph's title won't be displayed.
 	
-- **image:** Image blobs contain a reference to a file in the /uploads folder, and other parameters. They are generally children of page blobs.
-	- unsigned_int order: the numeric order in which the page content is shown.
-	- string src: the part of the access path which follows "/uploads". Example: the parameter must be "/img.jpg" for an image located at {ABSDIR}/uploads/img.jpg, or "/subfolder/img2.jpg" for an image located at {ABSDIR}/uploads/img2.jpg.
-	- string class: the class="" parameter for the <img /> tag. Include all the classes as you would do in HTML, example: "figure-img img-fluid rounded".
-	- bool caption: displays (or not) the image in a <figure> tag with a <figcaption> containing both the title and the description (name and content fields).
-	
-- **block** A block displayed on several pages, for example, in a banner. Can contain paragraphs and other content.
-
-- **csv** A CSV parser. Only uses a controller with 2 routes
-
-- **form:** A simple contact form
-	- int order: order on the page
-	- email mailto: the destination address
-	- string subject: message title (not used, probably for multilingual?)
-	- number nonce: an optional custom number to strengthen the antispam field.
-	- object delivery: contain the success and error messages (^not used, probably for multilingual?)
-	
-- **gallery** An image gallery
-	- int order: order on the page
-	- string format: the CSS classes on the elements (i.e. "col-md-3", "col-md-4 col-sm-6"...)
-	- string folderBase: the folder name (i.e. "galleries/gal1" for /uploads/galleries/gal1)
-	
-- **html:** Custom HTML block
-	- unsigned_int order: the numeric order in which the page content is shown.
-	- bool hideTitle: if "0" or false, the paragraph's title won't be displayed.
-	
-- **map:** A map with a single marker and popup, using leaflet.js
-	- int order: order on the page
-	- float lat: latitude
-	- float lng: longitude
-	- int zoom: default zoom (1-20)
-	- string popupText: content of the popup text
-	- bool popupOpened: whether popup is opened or closed on page load
-	
-	
-
-## Pseudo-blobs ##
-
-- **_opcms_error** This "bogus" blob type is not present in the database, it's only shown in Sitemap as an error handler to display an invalid blob. For example: if there is twice the same value for order in some page's content. To be documented.
+In former OppidumCMS there used to be many more content modules like contact form, image, gallery, etc., but since Bardic CMS is more turned towards API and custom content, I keep the default modules to the bare minimum. Please create your own modules.
 
 	
-## Base template
-OppidumCMS's base template is a minimalist display of all the parameters, and is mostly suitable for development or debugging purposes. You should consider creating your own new template.
+## Base template "pico"
+Bardic CMS's base template is a minimalist display of all the parameters, and is mostly suitable for development or debugging purposes. You should consider creating your own new template.
 
 ### standard.html.twig ###
 This file is the base template, from <html> to </html>, called on every page. The dynamic content is provided by the various Controllers who give these parameters to the Twig template engine. The main parameters are:
@@ -516,7 +399,7 @@ These two files contain the link, meta, or script tags that must be present eith
 All the admin-{...}.html.twig and user-{...}.html.twig are called by standard.html.twig, instead of the frontend template, depending on the action. 
 
 ### Module views ###
-OppidumCMS uses templates named after the modules that are "pageElement"s , like paragraph.html.twig for paragraphs,  image.html.twig for image blobs, etc.
+Bardic CMS uses templates named after the modules that are "pageElement"s , like paragraph.html.twig for paragraphs,  image.html.twig for image blobs, etc.
 The standard.html.twig calls the different module templates when necessary, but if you create new modules you must add manually your new blob type in the page content's inclusion list. The default template plainly displays the blob.name and the blob.content for unknown blob types or blob types not added in the inclusion list.
 
 ## Admin template
