@@ -120,15 +120,7 @@
 		{% elseif action == "read" %}
 
 			{% if session.id and blob.type is not null %}
-			<!-- Blob Admin meta -->
-			<aside class="opcms-meta">
-				<small>
-					{# {{ element.type }} #{{ element.id }} "{{ element.name }}" #}
-					{#{% if element.params.order is not null %}order:{{ element.params.order }}{% endif %} &ndash; #}
-					<a class="button-small no-margin" href="{{ ABSPATH }}/admin/{{ blob.id }}/edit/?callback=frontend" role="button"><i class="fa fa-pen"></i>&nbsp;{{ i18n.edit }} {{ i18n._modules[blob.type].name }}</a>
-					<a class="button-small no-margin" href="{{ ABSPATH }}/admin/create?parent={{ blob.id }}&callback=frontend" role="button"><i class="fa fa-plus"></i>&nbsp;{{ i18n.addContent }}</a>
-				</small>
-			</aside>
+			<!-- Put your admin metadata here -->
 			{% endif %}
 
 			<article class="no-margin">
@@ -146,9 +138,7 @@
 					<!-- Admin meta -->
 					<aside class="opcms-meta">
 						<small>
-							{# {{ element.type }} #{{ element.id }} "{{ element.name }}" #}
-							{#{% if element.params.order is not null %}order:{{ element.params.order }}{% endif %} &ndash; #}
-							<a class="button-small no-margin" href="{{ ABSPATH }}/admin/{{ element.id }}/edit/?callback=frontend" role="button"><i class="fa fa-pen"></i>&nbsp;{{ i18n.edit }} {{ i18n._modules[element.type].name }}</a>
+							<!-- Put your admin metadata here -->
 						</small>
 					</aside>
 					{% endif %}
