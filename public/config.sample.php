@@ -10,14 +10,14 @@ $config = [
 	
 	//Database connection
 	'db'=>[
-		'host'=>"localhost", 
-		//'host'=>"172.23.0.2:3306", //with Docker the IP is variable, should be something like "172.XX.0.Y:3306", check addresses in phpinfo.
-		//'host2'=>"172.23.0.3:3306",
-		//'host3'=>"172.23.0.4:3306",
+		//'host'=>"localhost", 
+		'host'=>"172.23.0.2:3306", //with Docker the IP is variable, should be something like "172.XX.0.Y:3306", check addresses in phpinfo.
+		'host2'=>"172.23.0.3:3306",
+		'host3'=>"172.23.0.4:3306",
 		'user'=>"root",
 		'pass'=>"root",
-		'dbname'=>"opcms",
-		'tbl'=>"opcmsdev"
+		'dbname'=>"bardiccmsdev",
+		'tbl'=>"bardiccmsdev"
 	],
 
 	//PHPMailer connection (for contact forms)
@@ -65,7 +65,7 @@ SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-CREATE TABLE `opcmsdev` (
+CREATE TABLE `bardiccmsdev` (
   `id` int(11) NOT NULL DEFAULT '0',
   `type` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'paragraph',
   `url` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -79,10 +79,10 @@ CREATE TABLE `opcmsdev` (
   `params` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-ALTER TABLE `opcmsdev`
+ALTER TABLE `bardiccmsdev`
   ADD PRIMARY KEY (`id`);
 
-ALTER TABLE `opcmsdev`
+ALTER TABLE `bardiccmsdev`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 */
